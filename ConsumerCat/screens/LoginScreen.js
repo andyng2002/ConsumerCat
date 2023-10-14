@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Alert, View, Text, StyleSheet, TextInput, Button, TouchableOpacity } from 'react-native';
+import { Alert, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { auth } from '../firebaseConfig';
-import { useIsFocused } from '@react-navigation/native';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -10,7 +9,7 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = () => {
     auth.signInWithEmailAndPassword(email, password)
       .then(() => {
-        navigation.navigate('Chat');
+        navigation.navigate('TabContainer');
       })
       .catch((error) => {
         Alert.alert('Login Failed', error.message);

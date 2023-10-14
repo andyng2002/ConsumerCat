@@ -1,8 +1,6 @@
-import React, {useState, useRef, useMemo} from 'react'
-import { View, Text,  StyleSheet, TouchableOpacity, TextInput, Button} from 'react-native'
-// import firebase from "firebase/app";
+import React, { useState } from 'react'
+import { View, Text,  StyleSheet, TouchableOpacity, TextInput} from 'react-native'
 import { auth } from '../firebaseConfig';
-// import "firebase/firestore";
 import * as firebase from "firebase/compat";
 import { Keyboard } from 'react-native';
 
