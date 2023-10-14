@@ -4,6 +4,7 @@ import { View, Text,  StyleSheet, TouchableOpacity, TextInput, Button} from 'rea
 import { auth } from '../firebaseConfig';
 // import "firebase/firestore";
 import * as firebase from "firebase/compat";
+import { Keyboard } from 'react-native';
 
 const AccountCreationScreen = ({ navigation }) => {
   const [lastName, setLastName] = useState('');
@@ -71,7 +72,7 @@ const AccountCreationScreen = ({ navigation }) => {
         />
         <TouchableOpacity
         style={styles.createAccountButton}
-        onPress={handleCreateAccount}
+        onPress={() => {handleCreateAccount(); Keyboard.dismiss()}}
         >
         <Text style={styles.buttonText}>Create Account</Text>
         </TouchableOpacity>
