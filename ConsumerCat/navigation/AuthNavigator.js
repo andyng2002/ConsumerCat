@@ -1,14 +1,12 @@
 //This file has the navigation to all the initial login/create account screens
-
 import {React} from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
-
 import { createStackNavigator } from '@react-navigation/stack';
-
 
 //screens
 import LoginScreen from '../screens/LoginScreen';
 import AccountCreationScreen from '../screens/AccountCreationScreen';
+import TabContainer from './TabContainer';
 
 const Stack = createStackNavigator(); //object that includes the Navigator, Screen, and Group
 
@@ -34,7 +32,13 @@ function AuthNavigator() {
                     options={{title: "Account Creation",
                     headerShown: false, gestureEnabled: false}}
                 />
-
+        
+                <Stack.Screen
+                    name="TabContainer"
+                    component={TabContainer}
+                    options={{title: "Inventory",
+                    headerShown: false, gestureEnabled: false}}
+                />
                 
             </Stack.Navigator>
         </KeyboardAvoidingView>
