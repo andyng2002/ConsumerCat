@@ -1,8 +1,9 @@
 import React, {useState, useRef, useMemo} from 'react'
 import { View, Text,  StyleSheet, TouchableOpacity, TextInput, Button} from 'react-native'
-import firebase from "firebase/app";
+// import firebase from "firebase/app";
 import { auth } from '../firebaseConfig';
-import "firebase/firestore";
+// import "firebase/firestore";
+import * as firebase from "firebase/compat";
 
 const AccountCreationScreen = ({ navigation }) => {
   const [lastName, setLastName] = useState('');
