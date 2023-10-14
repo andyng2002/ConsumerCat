@@ -19,7 +19,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Chat Room Login</Text>
+      <Text style={styles.title}>Consumer Cat Login</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
