@@ -9,7 +9,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 //screens
 import LoginScreen from '../screens/LoginScreen';
 import AccountCreationScreen from '../screens/AccountCreationScreen';
-import ChatScreen from '../screens/ChatScreen';
 
 const Stack = createStackNavigator(); //object that includes the Navigator, Screen, and Group
 
@@ -36,12 +35,6 @@ function AuthNavigator() {
                     headerShown: false, gestureEnabled: false}}
                 />
 
-                <Stack.Screen
-                    name="Chat"
-                    component={ChatScreen}
-                    options={{title: "Chat",
-                    headerShown: false, gestureEnabled: false}}
-                />
                 
             </Stack.Navigator>
         </KeyboardAvoidingView>
