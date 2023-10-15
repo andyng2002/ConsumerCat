@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text,  StyleSheet, TouchableOpacity, TextInput} from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native'
 import { auth } from '../firebaseConfig';
 import * as firebase from "firebase/compat";
 import { Keyboard } from 'react-native';
@@ -20,6 +20,7 @@ const AccountCreationScreen = ({ navigation }) => {
     borderRadius: 5,
     marginBottom: 10,
     paddingLeft: 10,
+    borderRadius: 25,
   };
 
   const handleCreateAccount = async () => {
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     },
 
     goBackButtonText: {
-        color: '#a741fa',  
+        color: '#3F6C51',  
         fontSize: 16,
         fontWeight: 'bold',
     },  
@@ -110,13 +111,14 @@ const styles = StyleSheet.create({
     createAccountButton: {
         width: 300,
         borderWidth: 2,
-        borderColor: '#a741fa',
-        backgroundColor: '#a741fa',
+        borderColor: '#3F6C51',
+        backgroundColor: '#3F6C51',
         borderRadius: 5,
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center',
+        borderRadius: 25,
     },
 
     buttonText: {
