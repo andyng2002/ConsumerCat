@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Alert, View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { styles } from '../Styles';
 
 
 const ScannerScreen = () => {
     return (
-        <View style={styles.container}>
+        <View style={brcd_styles.container}>
             <Text>Scanner</Text>
         </View>
     );
 };
 
-const styles = StyleSheet.create({
+
+// styles specific to Barcode Scanner Screen
+const brcd_styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
