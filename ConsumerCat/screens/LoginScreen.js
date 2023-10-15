@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Alert, View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import { auth } from '../firebaseConfig';
 
 const LoginScreen = ({ navigation }) => {
@@ -18,7 +18,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Consumer Cat Login</Text>
+      <Image source={require('../assets/ccsplashlogin.jpeg')}/>
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -37,7 +37,7 @@ const LoginScreen = ({ navigation }) => {
         secureTextEntry
       />
         <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
-            <Text style={styles.LoginButtonText}>Login</Text>
+            <Text style={styles.LoginButtonText}>Sign In</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AccountCreation')}>
             <Text style={styles.ButtonText}>Create Account</Text>
@@ -51,19 +51,20 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f4f4f4',
+        backgroundColor: '#FFFFFF',
         padding: 20,
     },
     LoginButton: {
         width: 300,
         borderWidth: 2,
-        borderColor: '#a741fa',
-        backgroundColor: '#a741fa',
+        borderColor: '#3F6C51',
+        backgroundColor: '#3F6C51',
         borderRadius: 5,
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignItems: 'center',
         justifyContent: 'center',
+        borderRadius: 25,
     },
 
     LoginButtonText: {
@@ -73,7 +74,7 @@ const styles = StyleSheet.create({
     },
 
     button: {
-        backgroundColor: '#f4f4f4',  
+        backgroundColor: '#FFFFFF',  
         borderRadius: 5,
         paddingVertical: 10,
         paddingHorizontal: 20,
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
     },
 
     ButtonText: {
-        color: '#a741fa',  
+        color: '#3F6C51',  
         fontSize: 16,
         fontWeight: 'bold',
     },  
@@ -96,12 +97,12 @@ const styles = StyleSheet.create({
     input: {
         width: 300,
         height: 40,
-        borderColor: 'gray',
+        borderColor: 'white',
         backgroundColor: '#e3e3e3',
         borderWidth: 1,
-        borderRadius: 5,
         marginBottom: 10,
         paddingLeft: 10,
+        borderRadius: 25,
     },
     buttonContainer: {
         flexDirection: 'row',
