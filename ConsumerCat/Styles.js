@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
         width: '100%',     // Set the width to 100% to span the whole screen
         height: 1,         // Set the height to the desired thickness of the line
         backgroundColor: '#3F6C51',
+        marginBottom: 10
     }
 })
 

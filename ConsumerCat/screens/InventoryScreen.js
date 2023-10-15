@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import { styles } from '../Styles';
-
+import Item from '../components/Item';
 
 const InventoryScreen = () => {
     return (
@@ -9,11 +9,13 @@ const InventoryScreen = () => {
             <Text style={inv_styles.hello_text}>Hello!</Text>
             <Text style={styles.header}>Your Inventory</Text>
             <View style={styles.horizontal_line} />
+            <Item text="banana" quantity={1}/>
+            <Item text="apple" quantity={1}/>
         </View>
     );
 }
 
-
+ 
 // styles specific to Inventory Screen
 const inv_styles = StyleSheet.create({
     container: {

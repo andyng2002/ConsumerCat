@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import InventoryScreen from '../screens/InventoryScreen';
 import WeeklyReportScreen from '../screens/WeeklyReportScreen';
@@ -5,10 +6,19 @@ import ScannerScreen from '../screens/ScannerScreen';
 import { Entypo } from '@expo/vector-icons'; 
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
+import Item from '../components/Item';
 
 const Tab = createBottomTabNavigator();
 
 export default function TabContainer() {
+    const [item, setItem] = useState();
+    const [itemList, setItemList] = useState([]);
+
+    const handleAddItem = () => {
+        setItemList([...itemList, item])
+        setItem(null);
+    }
+
     return (
         <Tab.Navigator 
             initialRouteName='Inventory'
