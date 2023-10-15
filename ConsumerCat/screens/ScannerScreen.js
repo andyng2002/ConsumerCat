@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, View, Text, StyleSheet, Button } from 'react-native';
+import { Alert, View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
 import { styles } from '../Styles';
 import { BarCodeScanner } from 'expo-barcode-scanner'
+import { Ionicons } from '@expo/vector-icons';
 
 /*
 resources: https://www.youtube.com/watch?v=LtbuOgoQJAg
@@ -20,11 +21,12 @@ const ScannerScreen = () => {
         getBarCodeScannerPermissions();
     }, []);
 
+    // change code to this to be able to add scanned items to inventory
+    // data var has upc num 
     const handleBarCodeScanned = ({type, data}) => {
         setScanned(true);
         alert(`Bar code with type ${type} and data ${data} has been scanned!`)
     }
-
 
     if (hasPermission === null) {
         return (
@@ -45,6 +47,9 @@ const ScannerScreen = () => {
 
     return (
         <View style={brcd_styles.container}>
+            <TouchableOpacity style={brcd_styles.scanBox}>
+                <Ionicons name='ios-scan-outline' size={400} color='white' />
+            </TouchableOpacity>
             <BarCodeScanner
                 onBarCodeScanned={ scanned ? undefined : handleBarCodeScanned}
                 style={StyleSheet.absoluteFillObject}
@@ -69,6 +74,11 @@ const brcd_styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
+    },
+
+    scanBox: {
+        position: 'relative',
+        zIndex: 1,
     }
 });
 
