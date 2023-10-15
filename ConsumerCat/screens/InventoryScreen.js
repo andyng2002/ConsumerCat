@@ -24,7 +24,9 @@ const InventoryScreen = () => {
                 value={item}
                 onChangeText={ item => setItem({
                     text: item, 
-                    quantity: 1
+                    quantity: 1,
+                    daysSincePurchase: 2,
+                    daysLeft: 3,
                 })}
             />
             <TouchableOpacity onPress={() => handleAddItem()}>
