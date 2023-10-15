@@ -1,16 +1,35 @@
-import React, { useState } from 'react';
-import { Alert, View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { Alert, View, Text, StyleSheet, Button, TouchableOpacity, TextInput } from 'react-native';
 import { styles } from '../Styles';
 import Item from '../components/Item';
+import { ItemContext } from '../hooks/ItemContext';
 
 const InventoryScreen = () => {
+    const { item, setItem, itemList, handleAddItem } = useContext(ItemContext)
+
     return (
         <View style={inv_styles.container}>
             <Text style={inv_styles.hello_text}>Hello!</Text>
             <Text style={styles.header}>Your Inventory</Text>
             <View style={styles.horizontal_line} />
-            <Item text="banana" quantity={1}/>
-            <Item text="apple" quantity={1}/>
+            {
+                itemList.map((item, index) => {
+                    return (
+                        <Item text={item.text} quantity={item.quantity} key={index}/>
+                    )
+                })
+            }
+            <TextInput
+                placeholder='Food'
+                value={item}
+                onChangeText={ item => setItem({
+                    text: item, 
+                    quantity: 1
+                })}
+            />
+            <TouchableOpacity onPress={() => handleAddItem()}>
+                <Text>Add Item</Text>
+            </TouchableOpacity>
         </View>
     );
 }
