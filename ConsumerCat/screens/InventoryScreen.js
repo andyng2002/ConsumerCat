@@ -14,11 +14,11 @@ const InventoryScreen = () => {
             <Text style={styles.header}>Your Inventory</Text>
             <View style={styles.horizontal_line} />
             {
-              itemList.map((item, index) => {
-                return (
-                  <Item text={item.text} quantity={item.quantity} key={index}/>
-                )
-              })
+                itemList.map((item, index) => {
+                    return (
+                        <Item text={item.text} quantity={item.quantity} daysLeft={item.daysLeft} key={index}/>
+                    )
+                })
             }
             <TextInput
               placeholder='Food'
