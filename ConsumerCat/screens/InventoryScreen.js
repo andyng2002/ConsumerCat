@@ -15,7 +15,7 @@ const InventoryScreen = () => {
             {
                 itemList.map((item, index) => {
                     return (
-                        <Item text={item.text} quantity={item.quantity} key={index}/>
+                        <Item text={item.text} quantity={item.quantity} daysLeft={item.daysLeft} key={index}/>
                     )
                 })
             }
