@@ -39,7 +39,7 @@ const LoginScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
             <Text style={styles.LoginButtonText}>Sign In</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AccountCreation')}>
+        <TouchableOpacity style={styles.CreateAccountButton} onPress={() => navigation.navigate('AccountCreation')}>
             <Text style={styles.ButtonText}>Create Account</Text>
         </TouchableOpacity>
     </View>
@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingVertical: 10,
         paddingHorizontal: 20,
+        marginBottom: 70, 
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 25,
@@ -73,9 +74,15 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-    button: {
-        backgroundColor: '#FFFFFF',  
+    CreateAccountButton: {
+        width: 300,
+        borderWidth: 2,
+        backgroundColor: '#D5F8D2',  
+        borderColor: '#3F6C51',
         borderRadius: 5,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 25,
         paddingVertical: 10,
         paddingHorizontal: 20,
         alignItems: 'center',
