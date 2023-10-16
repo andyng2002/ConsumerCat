@@ -19,6 +19,12 @@ export default function TabContainer() {
         // setItem(null);
     }
 
+    // const deleteItem = (index) => {
+    //     let itemsCopy = [...itemList];
+    //     itemsCopy.splice(index, 1);
+    //     setItemList(itemsCopy)
+    //   }
+
     return (
         <ItemContext.Provider value={{item, setItem, itemList, handleAddItem}}>
         <Tab.Navigator 
