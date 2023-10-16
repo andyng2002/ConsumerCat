@@ -15,9 +15,12 @@ export default function TabContainer() {
     const [itemList, setItemList] = useState([]);
 
     const handleAddItem = () => {
-        setItemList([...itemList, item])
-        // setItem(null);
-    }
+        if (item) {
+          setItemList([...itemList, item]);
+        } else {
+          console.warn("Item text should not be empty");
+        }
+      }      
 
     return (
         <ItemContext.Provider value={{item, setItem, itemList, handleAddItem}}>
