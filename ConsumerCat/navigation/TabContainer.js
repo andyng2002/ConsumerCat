@@ -6,7 +6,7 @@ import ScannerScreen from '../screens/ScannerScreen';
 import { Entypo } from '@expo/vector-icons'; 
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
-import Item from '../components/Item';
+import { ItemContext } from '../hooks/ItemContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -15,11 +15,21 @@ export default function TabContainer() {
     const [itemList, setItemList] = useState([]);
 
     const handleAddItem = () => {
-        setItemList([...itemList, item])
-        setItem(null);
-    }
+        if (item) {
+          setItemList([...itemList, item]);
+        } else {
+          console.warn("Item text should not be empty");
+        }
+      }      
+
+    // const deleteItem = (index) => {
+    //     let itemsCopy = [...itemList];
+    //     itemsCopy.splice(index, 1);
+    //     setItemList(itemsCopy)
+    //   }
 
     return (
+        <ItemContext.Provider value={{item, setItem, itemList, handleAddItem}}>
         <Tab.Navigator 
             initialRouteName='Inventory'
             screenOptions={({ route }) => ({
@@ -59,5 +69,6 @@ export default function TabContainer() {
             />
 
         </Tab.Navigator>
+        </ItemContext.Provider>
     );
 };
