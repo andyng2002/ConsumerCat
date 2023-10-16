@@ -7,7 +7,7 @@ const Item = (props) => {
         <View style={styles.item}>
             <Image source={require('../assets/apple.png')} style={styles.image}/>
             <Text style={styles.quantity}>{props.quantity}</Text>
-            <View style={{justifyContent}}>
+            <View>
                 <Text style={{fontSize: 20, fontWeight: 'bold'}}> {props.text} </Text>
                 <Text style={{fontSize: 10, color: '#988E8E'}}> Last Bought: {props.daysSincePurchase} </Text>
             </View>
