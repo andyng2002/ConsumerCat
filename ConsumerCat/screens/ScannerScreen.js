@@ -3,6 +3,7 @@ import { Alert, View, Text, StyleSheet, Button, TouchableOpacity } from 'react-n
 import { styles } from '../Styles';
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Ionicons } from '@expo/vector-icons';
+import { db } from '../firebaseConfig';
 
 /*
 resources: https://www.youtube.com/watch?v=LtbuOgoQJAg
@@ -20,12 +21,27 @@ const ScannerScreen = () => {
 
         getBarCodeScannerPermissions();
     }, []);
+    
+    const checkForInventoryDuplicate = (scannedUPC) => {
+        // TO-DO: change collection we are cross checking with to the user's inventory db
+        const productsRef = db.collection('productDatabase');
+        productsRef.where('UPC', '==', scannedUPC).get()
+            .then((result) => {
+                if(!result.empty) {
+                    Alert.alert('Duplicate Item', 'Already have this item in your inventory!', [{text: 'Add anyway'}, {text: `Don't add`}])
+                }
+            })
+            .catch((error) => {
+                console.error('Error querying Firestore:', error);
+            });
+    }
 
     // change code to this to be able to add scanned items to inventory
     // data var has upc num 
     const handleBarCodeScanned = ({type, data}) => {
-        setScanned(true);
-        alert(`Bar code with type ${type} and data ${data} has been scanned!`)
+        setScanned(true)
+        checkForInventoryDuplicate(data); // maybe only use this method if user is trying to add it to inventory
+        Alert.alert(`Bar code with type ${type} and data ${data} has been scanned!`)
     }
 
     if (hasPermission === null) {
