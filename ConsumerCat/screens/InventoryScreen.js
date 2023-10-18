@@ -6,7 +6,34 @@ import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
 
 const InventoryScreen = () => {
-    const { item, setItem, itemList, handleAddItem } = useContext(ItemContext)
+    const { item, setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext)
+
+    const fetchInventoryItems = async () => {
+      try {
+          const user = auth.currentUser;
+          if (user) {
+              // const userDoc = await db.collection('users').doc(user.uid).get();
+              // const userData = userDoc.data();
+
+              // if (userData && userData.items) {
+              //     setItemList(userData.items);
+              // }
+              const userDoc = await db.collection('users').doc(user.uid)
+              .collection('items')
+              .onSnapshot((snapshot) => {
+                const inventoryData = snapshot.docs.map((doc) => doc.data());
+                setItemList(inventoryData);
+              });
+          }
+      } catch (error) {
+          console.error('Error fetching inventory items:', error);
+      }
+    };
+
+    useEffect(() => {
+      fetchInventoryItems();
+    }, []);
+  
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -18,7 +45,7 @@ const InventoryScreen = () => {
             {
                 itemList.map((item, index) => {
                     return (
-                        <Item text={item.text} quantity={item.quantity} daysLeft={item.daysLeft} key={index}/>
+                        <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} key={index}/>
                     )
                 })
             }
@@ -26,10 +53,10 @@ const InventoryScreen = () => {
               placeholder='Food'
               value={item}
               onChangeText={ item => setItem({
-                text: item, 
-                quantity: 1,
-                daysSincePurchase: 2,
-                daysLeft: 3,
+                itemName: item, 
+                quantity: 2,
+                daysSincePurchase: 4,
+                daysLeft: 5,
               })}
             />
             <TouchableOpacity onPress={() => handleAddItem()}>

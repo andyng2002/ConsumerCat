@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native'
-import { auth } from '../firebaseConfig';
-import * as firebase from "firebase/compat";
+import { auth, db } from '../firebaseConfig';
+// import * as firebase from "firebase/compat";
 import { Keyboard } from 'react-native';
 
 const AccountCreationScreen = ({ navigation }) => {
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
-  var db = firebase.firestore();
+  // var db = firebase.firestore();
   const [password, setPassword] = useState('');
 
   const inputStyle = {
