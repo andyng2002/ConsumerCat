@@ -1,12 +1,47 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Alert, View, Text, StyleSheet, Button, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { Alert, View, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal } from 'react-native';
 import { styles } from '../Styles';
 import Item from '../components/Item';
 import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
 
 const InventoryScreen = () => {
-    const { item, setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext)
+    const { item, setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
+    const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
+    
+    const ManualAddModal = () => {
+        return(
+            <Modal
+                animationType="slide"
+                visible={manualAddModalVisible}
+                transparent={true}
+                onRequestClose={() => {
+                    setManualAddModalVisible(!manualAddModalVisible);
+                }}>
+                <View style={{backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center'}}>
+                    <View style={{backgroundColor: '#fff', margin: 100, padding: 20, flex: 0.25, borderRadius: 10, alignSelf: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: '#000'}}>
+                        <Text style={{fontSize: 20, fontWeight: 'bold', marginHorizontal: 30}}>Add Item(s)</Text>
+                        <Text>Name: </Text>
+                        <Text>Quantity: </Text>
+                        <View style={[styles.hz_align_items]}>
+                            <View style={{flex: 1, alignItems: 'center'}}> 
+                                <Pressable
+                                    // style={{paddingHorizontal: 20}}
+                                    onPress={() => setManualAddModalVisible(!manualAddModalVisible)}>
+                                    <Text>Cancel</Text>
+                                </Pressable>
+                            </View>
+                            <View style={{flex: 1, alignItems: 'center'}}>
+                                <Pressable>
+                                    <Text>Add</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
 
     const fetchInventoryItems = async () => {
       try {
@@ -40,7 +75,15 @@ const InventoryScreen = () => {
           <View style={inv_styles.container}>
             <Text style={inv_styles.hello_text}>Hello!</Text>
             <Text style={inv_styles.display_name}>{auth.currentUser.email}</Text>
-            <Text style={styles.header}>Your Inventory</Text>
+            <View style={styles.hz_align_items}>
+                <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
+                <Pressable 
+                    style={inv_styles.manual_btn_background}
+                    onPress={() => setManualAddModalVisible(!manualAddModalVisible)}>
+                    <Text style={inv_styles.manual_btn_text}>+</Text>
+                </Pressable>
+                {ManualAddModal()}
+            </View>
             <View style={styles.horizontal_line} />
             {
                 itemList.map((item, index) => {
@@ -82,13 +125,25 @@ const inv_styles = StyleSheet.create({
     hello_text: {
         fontSize: 22,
         fontWeight: "bold",
-        marginHorizontal: 5
     },
 
     display_name: {
         fontSize: 14,
-        marginHorizontal: 5,
         marginBottom: 30,
+    },
+
+    manual_btn_background: {
+        marginBottom: 5,
+        borderRadius: 10,
+        backgroundColor: '#3F6C51',
+    },
+
+    manual_btn_text: {
+        fontSize: 36,
+        fontWeight: '300',
+        color: 'white',
+        paddingBottom: 2, 
+        paddingHorizontal: 10,
     }
 });
 
