@@ -8,9 +8,19 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { ItemContext } from '../hooks/ItemContext';
 import ItemDetailScreen from '../screens/ItemDetailScreen';
+import { createStackNavigator } from '@react-navigation/stack';
 
+const ItemDetailStack = createStackNavigator();
 
 const Tab = createBottomTabNavigator();
+
+function ItemDetailStackScreen() {
+    return (
+      <ItemDetailStack.Navigator>
+        <ItemDetailStack.Screen name="ItemDetail" component={ItemDetailScreen} />
+      </ItemDetailStack.Navigator>
+    );
+  }
 
 export default function TabContainer() {
     const [item, setItem] = useState();
@@ -57,9 +67,9 @@ export default function TabContainer() {
             />
 
             
-            <Stack.Screen
-                name="ItemDetail"
-                component={ItemDetailScreen}
+            <Tab.Screen 
+                name="ItemDetailStack" 
+                component={ItemDetailStackScreen}
                 options={{title: "ItemDetail",
                 headerShown: false, gestureEnabled: false}}
             />
