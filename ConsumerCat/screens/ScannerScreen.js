@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { Alert, View, Text, StyleSheet, Button, TouchableOpacity,TextInput, Image } from 'react-native';
 import { styles } from '../Styles';
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Ionicons } from '@expo/vector-icons';
 import { db } from '../firebaseConfig';
+import { auth } from '../firebaseConfig';
 
 /*
 resources: https://www.youtube.com/watch?v=LtbuOgoQJAg
@@ -40,8 +41,8 @@ const ScannerScreen = () => {
     // data var has upc num 
     const handleBarCodeScanned = ({type, data}) => {
         setScanned(true)
-        checkForInventoryDuplicate(data); // maybe only use this method if user is trying to add it to inventory
-        Alert.alert(`Bar code with type ${type} and data ${data} has been scanned!`)
+        // checkForInventoryDuplicate(data); // maybe only use this method if user is trying to add it to inventory
+        navigation.navigate('ItemDetail', { upc: data });
     }
 
     if (hasPermission === null) {

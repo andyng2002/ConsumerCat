@@ -7,6 +7,8 @@ import { Entypo } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { ItemContext } from '../hooks/ItemContext';
+import ItemDetailScreen from '../screens/ItemDetailScreen';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -51,6 +53,14 @@ export default function TabContainer() {
                 name="WeeklyReport"
                 component={WeeklyReportScreen}
                 options={{title: "WeeklyReport",
+                headerShown: false, gestureEnabled: false}}
+            />
+
+            
+            <Stack.Screen
+                name="ItemDetail"
+                component={ItemDetailScreen}
+                options={{title: "ItemDetail",
                 headerShown: false, gestureEnabled: false}}
             />
 
