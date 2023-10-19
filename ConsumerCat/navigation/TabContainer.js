@@ -10,17 +10,23 @@ import { ItemContext } from '../hooks/ItemContext';
 import ItemDetailScreen from '../screens/ItemDetailScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 
-const ItemDetailStack = createStackNavigator();
-
 const Tab = createBottomTabNavigator();
+const InventoryStack = createStackNavigator();
 
-function ItemDetailStackScreen() {
-    return (
-      <ItemDetailStack.Navigator>
-        <ItemDetailStack.Screen name="ItemDetail" component={ItemDetailScreen} />
-      </ItemDetailStack.Navigator>
-    );
-  }
+const InventoryStackScreen = () => (
+    <InventoryStack.Navigator>
+      <InventoryStack.Screen 
+        name="Inventory" 
+        component={InventoryScreen} 
+        options={{ headerShown: false }}
+      />
+      <InventoryStack.Screen 
+        name="ItemDetail" 
+        component={ItemDetailScreen} 
+        options={{ headerShown: false }}
+      />
+    </InventoryStack.Navigator>
+  );
 
 export default function TabContainer() {
     const [item, setItem] = useState();
@@ -63,14 +69,6 @@ export default function TabContainer() {
                 name="WeeklyReport"
                 component={WeeklyReportScreen}
                 options={{title: "WeeklyReport",
-                headerShown: false, gestureEnabled: false}}
-            />
-
-            
-            <Tab.Screen 
-                name="ItemDetailStack" 
-                component={ItemDetailStackScreen}
-                options={{title: "ItemDetail",
                 headerShown: false, gestureEnabled: false}}
             />
 
