@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Alert, View, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal } from 'react-native';
 import { styles } from '../Styles';
 import Item from '../components/Item';
@@ -6,40 +6,69 @@ import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
 
 const InventoryScreen = () => {
-    const { item, setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
+    const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
+    const [ itemName, setItemName ] = useState('');
+    const [ itemQty, setItemQty ] = useState('');
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
+
+    const handleManualAddButton = () => {
+        setManualAddModalVisible(false);
+        setItemName('');
+        setItemQty('');
+    }
     
     const ManualAddModal = () => {
         return(
-            <Modal
-                animationType="slide"
-                visible={manualAddModalVisible}
-                transparent={true}
-                onRequestClose={() => {
-                    setManualAddModalVisible(!manualAddModalVisible);
-                }}>
-                <View style={{backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center'}}>
-                    <View style={{backgroundColor: '#fff', margin: 100, padding: 20, flex: 0.25, borderRadius: 10, alignSelf: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: '#000'}}>
-                        <Text style={{fontSize: 20, fontWeight: 'bold', marginHorizontal: 30}}>Add Item(s)</Text>
-                        <Text>Name: </Text>
-                        <Text>Quantity: </Text>
-                        <View style={[styles.hz_align_items]}>
-                            <View style={{flex: 1, alignItems: 'center'}}> 
-                                <Pressable
-                                    // style={{paddingHorizontal: 20}}
-                                    onPress={() => setManualAddModalVisible(!manualAddModalVisible)}>
-                                    <Text>Cancel</Text>
-                                </Pressable>
+                <Modal
+                    animationType="slide"
+                    visible={manualAddModalVisible}
+                    transparent={true}
+                    onRequestClose={() => {
+                        setManualAddModalVisible(!manualAddModalVisible);
+                    }}>
+                    <View style={{backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center'}}>
+                        <View style={{backgroundColor: '#fff', margin: 100, padding: 20, flex: 0.25, borderRadius: 10, alignSelf: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: '#000'}}>
+                            <Text style={{fontSize: 20, fontWeight: 'bold', marginHorizontal: 30}}>Add Item(s)</Text>
+                            <View style={{flexDirection: 'row', alignItems: 'center',}}>
+                                <Text>Name: </Text>
+                                <TextInput 
+                                    style={[{width: 120, height: 30}, styles.input]} 
+                                    onChangeText={ name => setItemName(name)}/>
                             </View>
-                            <View style={{flex: 1, alignItems: 'center'}}>
-                                <Pressable>
-                                    <Text>Add</Text>
-                                </Pressable>
+                            <View style={{flexDirection: 'row', alignItems: 'center',}}>
+                                <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Quantity: </Text>
+                                <TextInput
+                                    style={[{width: 30, height: 30}, styles.input]}
+                                    onChangeText={ qty => setItemQty(qty)}
+                                    keyboardType='numeric'/>
+                            </View>
+                            <View style={[styles.hz_align_items]}>
+                                <View style={{flex: 1, alignItems: 'center'}}> 
+                                    <Pressable
+                                        onPress={() => setManualAddModalVisible(false)}>
+                                        <Text>Cancel</Text>
+                                    </Pressable>
+                                </View>
+                                <View style={{flex: 1, alignItems: 'center'}}>
+                                    <Pressable
+                                        onPress={() => {
+                                            setItem({
+                                                itemName: itemName, 
+                                                quantity: itemQty,
+                                                daysSincePurchase: 4,
+                                                daysLeft: 5,
+                                            });
+                                            handleAddItem();
+                                            handleManualAddButton();
+
+                                        }}>
+                                        <Text>Add</Text>
+                                    </Pressable>
+                                </View>
                             </View>
                         </View>
                     </View>
-                </View>
-            </Modal>
+                </Modal>
         )
     }
 
@@ -79,10 +108,9 @@ const InventoryScreen = () => {
                 <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
                 <Pressable 
                     style={inv_styles.manual_btn_background}
-                    onPress={() => setManualAddModalVisible(!manualAddModalVisible)}>
+                    onPress={() => setManualAddModalVisible(true)}>
                     <Text style={inv_styles.manual_btn_text}>+</Text>
                 </Pressable>
-                {ManualAddModal()}
             </View>
             <View style={styles.horizontal_line} />
             {
@@ -92,7 +120,7 @@ const InventoryScreen = () => {
                     )
                 })
             }
-            <TextInput
+            {/* <TextInput
               placeholder='Food'
               value={item}
               onChangeText={ item => setItem({
@@ -101,10 +129,11 @@ const InventoryScreen = () => {
                 daysSincePurchase: 4,
                 daysLeft: 5,
               })}
-            />
-            <TouchableOpacity onPress={() => handleAddItem()}>
+            /> */}
+            {/* <TouchableOpacity onPress={() => handleAddItem()}>
               <Text>Add Item</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            {ManualAddModal()}
           </View>
         </TouchableWithoutFeedback>
       );
