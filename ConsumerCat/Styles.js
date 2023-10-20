@@ -28,7 +28,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'space-between',
         justifyContent: 'center'
-    }
+    },
+
+    input: {
+        borderColor: 'white',
+        backgroundColor: '#e3e3e3',
+        borderWidth: 1,
+        paddingLeft: 10,
+        borderRadius: 5,
+    },
 })
 
 export { styles }
