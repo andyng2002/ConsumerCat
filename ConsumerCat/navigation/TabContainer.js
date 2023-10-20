@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import InventoryScreen from '../screens/InventoryScreen';
 import WeeklyReportScreen from '../screens/WeeklyReportScreen';
@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ItemContext } from '../hooks/ItemContext';
 import ItemDetailScreen from '../screens/ItemDetailScreen';
 import { createStackNavigator } from '@react-navigation/stack';
+import { auth, db } from '../firebaseConfig';
 
 const Tab = createBottomTabNavigator();
 const InventoryStack = createStackNavigator();
@@ -31,10 +32,37 @@ const InventoryStackScreen = () => (
 export default function TabContainer() {
     const [item, setItem] = useState();
     const [itemList, setItemList] = useState([]);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        // Use Firebase Authentication to get the currently authenticated user
+        const unsubscribe = auth.onAuthStateChanged((authUser) => {
+          if (authUser) {
+            setUser(authUser);
+          } else {
+            setUser(null);
+          }
+        });
+    
+        return unsubscribe;
+      }, []);
+
+    const itemCollection = user ? db.collection('users').doc(user.uid).collection('items') : null;
 
     const handleAddItem = () => {
         if (item) {
           setItemList([...itemList, item]);
+
+          if (itemCollection) {
+            itemCollection.add({
+                itemName: item.itemName,
+                quantity: item.quantity,
+                daysSincePurchase: item.daysSincePurchase,
+                daysLeft: item.daysLeft,
+              });
+          } else {
+            console.warn("User is not authenticated"); // Handle this case as needed
+          }
         } else {
           console.warn("Item text should not be empty");
         }
@@ -47,7 +75,7 @@ export default function TabContainer() {
     //   }
 
     return (
-        <ItemContext.Provider value={{item, setItem, itemList, handleAddItem}}>
+        <ItemContext.Provider value={{item, setItem, itemList, setItemList, handleAddItem}}>
         <Tab.Navigator 
             initialRouteName='Inventory'
             screenOptions={({ route }) => ({
