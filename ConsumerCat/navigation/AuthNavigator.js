@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 //screens
 import LoginScreen from '../screens/LoginScreen';
 import AccountCreationScreen from '../screens/AccountCreationScreen';
+import ItemDetailScreen from '../screens/ItemDetailScreen';
 import TabContainer from './TabContainer';
 
 const Stack = createStackNavigator(); //object that includes the Navigator, Screen, and Group
@@ -37,6 +38,13 @@ function AuthNavigator() {
                     name="TabContainer"
                     component={TabContainer}
                     options={{title: "Inventory",
+                    headerShown: false, gestureEnabled: false}}
+                />
+
+                <Stack.Screen
+                    name="ItemDetail"
+                    component={ItemDetailScreen}
+                    options={{title: "ItemDetail",
                     headerShown: false, gestureEnabled: false}}
                 />
                 

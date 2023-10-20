@@ -7,9 +7,27 @@ import { Entypo } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import { ItemContext } from '../hooks/ItemContext';
+import ItemDetailScreen from '../screens/ItemDetailScreen';
+import { createStackNavigator } from '@react-navigation/stack';
 import { auth, db } from '../firebaseConfig';
 
 const Tab = createBottomTabNavigator();
+const InventoryStack = createStackNavigator();
+
+const InventoryStackScreen = () => (
+    <InventoryStack.Navigator>
+      <InventoryStack.Screen 
+        name="Inventory" 
+        component={InventoryScreen} 
+        options={{ headerShown: false }}
+      />
+      <InventoryStack.Screen 
+        name="ItemDetail" 
+        component={ItemDetailScreen} 
+        options={{ headerShown: false }}
+      />
+    </InventoryStack.Navigator>
+  );
 
 export default function TabContainer() {
     const [item, setItem] = useState();
