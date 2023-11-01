@@ -29,7 +29,7 @@ const InventoryStackScreen = () => (
     </InventoryStack.Navigator>
   );
 
-export default function TabContainer() {
+export default function TabContainer({ route }) {
     const [item, setItem] = useState();
     const { uid } = route.params;
     const [itemList, setItemList] = useState([]);
