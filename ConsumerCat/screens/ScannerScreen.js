@@ -10,9 +10,10 @@ import { auth } from '../firebaseConfig';
 resources: https://www.youtube.com/watch?v=LtbuOgoQJAg
 */
 
-const ScannerScreen = () => {
+const ScannerScreen = ({ route }) => {
     const [hasPermission, setHasPermission] = useState(null);
     const [quantity, setQuantity] = useState(1);
+    const { uid } = route.params;
 
     const [scannedItem, setScannedItem] = useState(null); // To hold the scanned product details
     const [scannedUPC, setScannedUPC] = useState(null);
@@ -89,15 +90,28 @@ const ScannerScreen = () => {
     
 
     const addToInventory = () => {
-        if (scannedItem) {
-            // Here you would write your logic to add the scannedItem to the user's inventory in your database.
-            // For instance:
-            db.collection('userInventory').add(scannedItem);
-
-            Alert.alert('Success', 'Product added to inventory!');
+        if (scannedItem && uid && scannedUPC) {  // Make sure all the required data is available
+            // Use UPC as the document ID
+            const itemRef = db.collection('users').doc(uid).collection('items').doc(scannedUPC);
+    
+            itemRef.set({
+                ...scannedItem,
+                quantity: quantity  // Also adding quantity
+            })
+            .then(() => {
+                Alert.alert('Success', 'Product added to inventory!');
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+            });
+    
             setScannedItem(null);
+            setScannedUPC(null);  // Resetting the UPC
+        } else {
+            Alert.alert('Error', 'Could not add product to inventory.');
         }
     };
+    
 
     if (hasPermission === null) {
         return (
