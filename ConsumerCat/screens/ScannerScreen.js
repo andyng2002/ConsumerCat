@@ -10,10 +10,11 @@ import { auth } from '../firebaseConfig';
 resources: https://www.youtube.com/watch?v=LtbuOgoQJAg
 */
 
-const ScannerScreen = () => {
+const ScannerScreen = ({ route }) => {
     const [hasPermission, setHasPermission] = useState(null);
     const [quantity, setQuantity] = useState(1);
-
+    const { uid } = route.params;
+    const [scanning, setScanning] = useState(true);
     const [scannedItem, setScannedItem] = useState(null); // To hold the scanned product details
     const [scannedUPC, setScannedUPC] = useState(null);
 
@@ -55,9 +56,44 @@ const ScannerScreen = () => {
 
     // change code to this to be able to add scanned items to inventory
     // data var has upc num 
-    const handleBarCodeScanned = ({type, data}) => {
-        setScannedUPC(data);
+    const handleBarCodeScanned = async ({ type, data }) => {
+        if (scanning) {
+            setScanning(false);  // Stop further scans until this one is processed
+    
+            // Existing code to set scanned UPC
+            setScannedUPC(data);
+    
+            // Fetch the product name here
+            const productRef = db.collection('productDatabase').doc(data);
+            const doc = await productRef.get();
+            if (doc.exists) {
+                const productName = doc.data()['Product Name'];
+                Alert.alert(
+                    'Product Scanned',
+                    `Successfully scanned ${productName}!`,
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => setScanning(true),  // Re-enable scanning
+                        },
+                    ]
+                );
+            } else {
+                Alert.alert(
+                    'Product Scanned',
+                    'Product not found in database.',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => setScanning(true),  // Re-enable scanning
+                        },
+                    ]
+                );
+            }
+        }
     };
+    
+    
     
 
     useEffect(() => {
@@ -89,15 +125,40 @@ const ScannerScreen = () => {
     
 
     const addToInventory = () => {
-        if (scannedItem) {
-            // Here you would write your logic to add the scannedItem to the user's inventory in your database.
-            // For instance:
-            db.collection('userInventory').add(scannedItem);
-
-            Alert.alert('Success', 'Product added to inventory!');
+        if (scannedItem && uid && scannedUPC) {  // Make sure all the required data is available
+            // Use UPC as the document ID
+            const itemRef = db.collection('users').doc(uid).collection('items').doc(scannedUPC);
+    
+            itemRef.get().then((doc) => {
+                if (doc.exists) {
+                    // If item already exists, update the quantity
+                    const currentQuantity = doc.data().quantity || 0;  // Use 0 as a fallback
+                    return itemRef.update({
+                        quantity: currentQuantity + quantity  // Adding to existing quantity
+                    });
+                } else {
+                    // If item doesn't exist, create a new entry
+                    return itemRef.set({
+                        ...scannedItem,
+                        quantity: quantity  // Also adding quantity
+                    });
+                }
+            })
+            .then(() => {
+                Alert.alert('Success', 'Product added to inventory!');
+            })
+            .catch((error) => {
+                console.error("Error adding or updating document: ", error);
+            });
+    
             setScannedItem(null);
+            setScannedUPC(null);  // Resetting the UPC
+        } else {
+            Alert.alert('Error', 'Could not add product to inventory.');
         }
     };
+    
+    
 
     if (hasPermission === null) {
         return (
@@ -150,15 +211,15 @@ const ScannerScreen = () => {
 
             {scannedItem && (
                 <View style={brcd_styles.scannedItemContainer}>
-                    <Text>{scannedItem.brand} - {scannedItem.productName}</Text>
+                    <Text style={{ textAlign: 'center' }}>{scannedItem.brand}{'\n'}{scannedItem.productName}</Text>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                        <TouchableOpacity onPress={decreaseQuantity}>
-                            <Text style={{ fontSize: 24, marginRight: 10 }}>-</Text>
+                        <TouchableOpacity style={styles.quantityButton} onPress={decreaseQuantity}>
+                            <Ionicons name='remove' size={22} color='grey' />
                         </TouchableOpacity>
                         <Text style={{ fontSize: 20 }}>{quantity}</Text>
-                        <TouchableOpacity onPress={increaseQuantity}>
-                            <Text style={{ fontSize: 24, marginLeft: 10 }}>+</Text>
+                        <TouchableOpacity style={styles.quantityButton} onPress={increaseQuantity}>
+                            <Ionicons name='add' size={22} color='grey' />
                         </TouchableOpacity>
                     </View>
                     <TouchableOpacity style={styles.addProductButton} onPress={addToInventory}>
@@ -187,6 +248,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
+    },
+    quantityButton: {
+        padding: 10,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 5
     },
     instructionText: {
         marginTop: 20,

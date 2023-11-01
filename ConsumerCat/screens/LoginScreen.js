@@ -8,14 +8,15 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        navigation.navigate('TabContainer');
+      .then((user) => {
+        const uid = user.user.uid;
+        navigation.navigate('TabContainer', { uid: uid });
       })
       .catch((error) => {
         Alert.alert('Login Failed', error.message);
       });
   };
-
+  
   return (
     <View style={styles.container}>
       <Image source={require('../assets/ccsplashlogin.jpeg')}/>

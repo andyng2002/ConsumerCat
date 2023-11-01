@@ -29,8 +29,9 @@ const InventoryStackScreen = () => (
     </InventoryStack.Navigator>
   );
 
-export default function TabContainer() {
+export default function TabContainer({ route }) {
     const [item, setItem] = useState();
+    const { uid } = route.params;
     const [itemList, setItemList] = useState([]);
     const [user, setUser] = useState(null);
 
@@ -110,6 +111,7 @@ export default function TabContainer() {
             <Tab.Screen 
                 name="Scanner" 
                 component={ScannerScreen}
+                initialParams={{ uid: uid }}
                 options={{title: "Scanner",
                 headerShown: false, gestureEnabled: false}}
             />
