@@ -104,6 +104,7 @@ export default function TabContainer({ route }) {
             <Tab.Screen 
                 name="Inventory" 
                 component={InventoryScreen}
+                initialParams={{ uid: uid }}
                 options={{title: "Inventory",
                 headerShown: false, gestureEnabled: false}}
             />

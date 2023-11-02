@@ -6,19 +6,58 @@ import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
 import { FlatList } from 'react-native';
 
-const InventoryScreen = () => {
+const InventoryScreen = ({ route }) => {
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
     const [ itemName, setItemName ] = useState('');
     const [ itemQty, setItemQty ] = useState('');
+    const { uid } = route.params;
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
 
-    const handleManualAddButton = () => {
-        setManualAddModalVisible(false);
-        setItemName('');
-        setItemQty('');
-    }
+    // const handleManualAddButton = () => {
+    //     setManualAddModalVisible(false);
+    //     setItemName('');
+    //     setItemQty('');
+    // }
     
+    const addToInventory = () => {
+        if (itemName && itemQty) {
+            const itemRef = db.collection('users').doc(uid).collection('items').doc(itemName);
+    
+            itemRef.get().then((doc) => {
+                if (doc.exists) {
+                    console.log("here")
+                    // If item already exists, update the quantity
+                    const currentQuantity = doc.data().quantity || 0;  // Use 0 as a fallback
+                    return itemRef.update({
+                        quantity: currentQuantity + quantity  // Adding to existing quantity
+                    });
+                } else {
+                    // If item doesn't exist, create a new entry
+                    return itemRef.set({
+                        itemName: itemName,
+                        quantity: itemQty,
+                        // daysSincePurchase: item.daysSincePurchase,
+                        // daysLeft: item.daysLeft,
+                        daysSincePurchase: 5,
+                        daysLeft: 12,
+                    });
+                }
+            })
+            .then(() => {
+                Alert.alert('Success', 'Product added to inventory!');
+            })
+            .catch((error) => {
+                console.error("Error adding or updating document: ", error);
+            });
+    
+            setItemName(null);
+            setItemQty(null);  // Resetting the qtyr
+        } else {
+            Alert.alert('Error', 'Could not add product to inventory.');
+        }
+    };
+
     const handleSearch = async (text) => {
         setItemName(text);
     
@@ -117,18 +156,8 @@ const InventoryScreen = () => {
                                     </Pressable>
                                 </View>
                                 <View style={{flex: 1, alignItems: 'center'}}>
-                                    <Pressable
-                                        onPress={() => {
-                                            setItem({
-                                                itemName: itemName, 
-                                                quantity: itemQty,
-                                                daysSincePurchase: 4,
-                                                daysLeft: 5,
-                                            });
-                                            handleAddItem();
-                                            handleManualAddButton();
-
-                                        }}>
+                                    <Pressable onPress={addToInventory}>
+                                        
                                         <Text>Add</Text>
                                     </Pressable>
                                 </View>
