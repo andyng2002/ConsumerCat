@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, View, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal } from 'react-native';
+import { Alert, View, ScrollView, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal } from 'react-native';
 import { styles } from '../Styles';
 import Item from '../components/Item';
 import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
+import { FlatList } from 'react-native';
 
 const InventoryScreen = () => {
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
     const [ itemName, setItemName ] = useState('');
     const [ itemQty, setItemQty ] = useState('');
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
+    const [suggestions, setSuggestions] = useState([]);
 
     const handleManualAddButton = () => {
         setManualAddModalVisible(false);
@@ -17,6 +19,42 @@ const InventoryScreen = () => {
         setItemQty('');
     }
     
+    const handleSearch = async (text) => {
+        setItemName(text);
+    
+        try {
+            // Search by Product Name
+            const productNameQuerySnapshot = await db.collection('productDatabase')
+                .where('Product Name', '>=', text)
+                .where('Product Name', '<=', text + '\uf8ff')
+                .get();
+    
+            // Search by Brand
+            const brandQuerySnapshot = await db.collection('productDatabase')
+                .where('Brand', '>=', text)
+                .where('Brand', '<=', text + '\uf8ff')
+                .get();
+    
+            const productNameResults = productNameQuerySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return `${data.Brand} ${data['Product Name']}`;
+            });
+    
+            const brandResults = brandQuerySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return `${data.Brand} ${data['Product Name']}`;
+            });
+    
+            // Combine results and remove duplicates
+            const combinedResults = Array.from(new Set([...productNameResults, ...brandResults]));
+    
+            setSuggestions(combinedResults);
+        } catch (error) {
+            console.error('Error performing search:', error);
+        }
+    };
+    
+
     const ManualAddModal = () => {
         return(
                 <Modal
@@ -26,15 +64,44 @@ const InventoryScreen = () => {
                     onRequestClose={() => {
                         setManualAddModalVisible(!manualAddModalVisible);
                     }}>
-                    <View style={{backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center'}}>
-                        <View style={{backgroundColor: '#fff', margin: 100, padding: 20, flex: 0.25, borderRadius: 10, alignSelf: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: '#000'}}>
-                            <Text style={{fontSize: 20, fontWeight: 'bold', marginHorizontal: 30}}>Add Item(s)</Text>
-                            <View style={{flexDirection: 'row', alignItems: 'center',}}>
-                                <Text>Name: </Text>
-                                <TextInput 
-                                    style={[{width: 120, height: 30}, styles.input]} 
-                                    onChangeText={ name => setItemName(name)}/>
-                            </View>
+                    <View style={{ backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center' }}>
+                        <View style={{ 
+                            backgroundColor: '#fff', 
+                            width: 300, // fixed width
+                            height: 500, // fixed height
+                            margin: 50,
+                            padding: 20, 
+                            borderRadius: 10, 
+                            alignSelf: 'center', 
+                            justifyContent: 'space-between', 
+                            borderWidth: 1, 
+                            borderColor: '#000'
+                        }}>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold', marginHorizontal: 30 }}>Add Item(s)</Text>                     
+                            {/* New Auto-complete Search Bar */}
+                            <TextInput
+                                placeholder='Search'
+                                placeholderTextColor='black'
+                                value={itemName}
+                                onChangeText={handleSearch}
+                                style={{ marginBottom: 10, width: 120, height: 30, color: 'Black'}, styles.input }
+                            />
+
+                            <FlatList
+                                data={suggestions}
+                                keyExtractor={(item, index) => index.toString()}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity onPress={() => {
+                                        const name = item
+                                        setItemName(name);
+                                        console.log(itemName);
+                                    }}>
+                                        <Text>{item}</Text>
+                                    </TouchableOpacity>
+                                )}
+                            />
+
+
                             <View style={{flexDirection: 'row', alignItems: 'center',}}>
                                 <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Quantity: </Text>
                                 <TextInput
@@ -101,42 +168,48 @@ const InventoryScreen = () => {
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <View style={inv_styles.container}>
-            <Text style={inv_styles.hello_text}>Hello!</Text>
-            <Text style={inv_styles.display_name}>{auth.currentUser.email}</Text>
-            <View style={styles.hz_align_items}>
-                <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
-                <Pressable 
-                    style={inv_styles.manual_btn_background}
-                    onPress={() => setManualAddModalVisible(true)}>
-                    <Text style={inv_styles.manual_btn_text}>+</Text>
-                </Pressable>
+            <View style={inv_styles.container}>
+                <Text style={inv_styles.hello_text}>Hello!</Text>
+                <Text style={inv_styles.display_name}>{auth.currentUser.email}</Text>
+                <View style={styles.hz_align_items}>
+                    <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
+                    <Pressable 
+                        style={inv_styles.manual_btn_background}
+                        onPress={() => setManualAddModalVisible(true)}>
+                        <Text style={inv_styles.manual_btn_text}>+</Text>
+                    </Pressable>
+                </View>
+                <View style={styles.horizontal_line} />
+                
+                <ScrollView style={{ flex: 1 }}>
+                    {
+                        itemList.map((item, index) => {
+                            return (
+                                <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} key={index}/>
+                            )
+                        })
+                    }
+                </ScrollView>
+
+    
+                {/* <TextInput
+                    placeholder='Food'
+                    value={item}
+                    onChangeText={ item => setItem({
+                        itemName: item, 
+                        quantity: 2,
+                        daysSincePurchase: 4,
+                        daysLeft: 5,
+                    })}
+                /> */}
+                {/* <TouchableOpacity onPress={() => handleAddItem()}>
+                    <Text>Add Item</Text>
+                </TouchableOpacity> */}
+                {ManualAddModal()}
             </View>
-            <View style={styles.horizontal_line} />
-            {
-                itemList.map((item, index) => {
-                    return (
-                        <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} key={index}/>
-                    )
-                })
-            }
-            {/* <TextInput
-              placeholder='Food'
-              value={item}
-              onChangeText={ item => setItem({
-                itemName: item, 
-                quantity: 2,
-                daysSincePurchase: 4,
-                daysLeft: 5,
-              })}
-            /> */}
-            {/* <TouchableOpacity onPress={() => handleAddItem()}>
-              <Text>Add Item</Text>
-            </TouchableOpacity> */}
-            {ManualAddModal()}
-          </View>
         </TouchableWithoutFeedback>
-      );
+    );
+    
     };
 
  
