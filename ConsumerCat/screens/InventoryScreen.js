@@ -28,7 +28,7 @@ const InventoryScreen = ({ route }) => {
                 if (doc.exists) {
                     console.log("here")
                     // If item already exists, update the quantity
-                    const currentQuantity = doc.data().quantity || 0;  // Use 0 as a fallback
+                    const currentQuantity = doc.data().quantity || 0;
                     return itemRef.update({
                         quantity: currentQuantity + quantity  // Adding to existing quantity
                     });
@@ -52,7 +52,7 @@ const InventoryScreen = ({ route }) => {
             });
     
             setItemName(null);
-            setItemQty(null);  // Resetting the qtyr
+            setItemQty(null);  // Resetting the qty
         } else {
             Alert.alert('Error', 'Could not add product to inventory.');
         }
