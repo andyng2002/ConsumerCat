@@ -26,9 +26,9 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         marginBottom: 20,
         width: '100%',
+        justifyContent: 'space-between'
     },
     quantity: {
         backgroundColor: '#D9D9D9',
@@ -38,12 +38,10 @@ const styles = StyleSheet.create({
     daysLeft: {
         backgroundColor: '#EB4242',
         alignItems: 'center',
-        justifyContent: 'center',
         fontSize: 20,
         borderRadius: 10,
         flexDirection: 'column',
         padding: 6,
-
     },
     image: {
         width: 60,

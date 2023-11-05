@@ -140,6 +140,7 @@ const ScannerScreen = ({ route }) => {
                     // If item doesn't exist, create a new entry
                     return itemRef.set({
                         ...scannedItem,
+                        itemName: scannedItem.productName,  // Adding itemName field
                         quantity: quantity  // Also adding quantity
                     });
                 }
