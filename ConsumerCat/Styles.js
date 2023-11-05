@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     hz_align_items: {
         flexDirection: 'row',
         alignItems: 'space-between',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
 
     input: {

@@ -103,28 +103,27 @@ const InventoryScreen = ({ route }) => {
                 setManualAddModalVisible(!manualAddModalVisible);
             }}>
                 <View style={{ backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center' }}>
-                    <View style={{ 
-                        backgroundColor: '#fff', 
-                        width: '75%', // fixed width
-                        height: '45%', // fixed height
-                        margin: 50,
-                        padding: 20, 
-                        borderRadius: 10, 
-                        alignSelf: 'center', 
-                        justifyContent: 'space-between', 
-                        borderWidth: 1, 
-                        borderColor: '#000'
-                    }}>
-                        <Text style={{ fontSize: 20, fontWeight: 'bold', marginHorizontal: 30 }}>Add Item(s)</Text>                     
+                    <View style={inv_styles.manual_screen}>
+                        <View style={inv_styles.manual_header_container}>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold'}}>Add Item(s)</Text>                  
+                            <View style={{flexDirection: 'row', alignItems: 'center',}}>
+                                <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Quantity: </Text>
+                                <TextInput
+                                    style={[{width: 30, height: 30}, styles.input]}
+                                    onChangeText={ qty => setItemQty(qty)}
+                                    keyboardType='numeric'/>
+                            </View>
+                        </View>
+                    
                         {/* New Auto-complete Search Bar */}
                         <TextInput
                             placeholder='Search'
                             placeholderTextColor='black'
                             value={itemName}
                             onChangeText={handleSearch}
-                            style={{ marginBottom: 10, width: 120, height: 30, color: 'Black'}, styles.input }
+                            style={[styles.input, {marginBottom: 10, width: '100%', height: 30, color: 'Black'}]}
                         />
-    
+
                         <FlatList
                             data={suggestions}
                             keyExtractor={(item, index) => index.toString()}
@@ -139,25 +138,16 @@ const InventoryScreen = ({ route }) => {
                             )}
                         />
     
-    
-                        <View style={{flexDirection: 'row', alignItems: 'center',}}>
-                            <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Quantity: </Text>
-                            <TextInput
-                                style={[{width: 30, height: 30}, styles.input]}
-                                onChangeText={ qty => setItemQty(qty)}
-                                keyboardType='numeric'/>
-                        </View>
-                        <View style={[styles.hz_align_items]}>
-                            <View style={{flex: 1, alignItems: 'center'}}> 
+                        <View style={inv_styles.manual_buttons_container}>
+                            <View style={inv_styles.manual_buttons}> 
                                 <Pressable
                                     onPress={() => setManualAddModalVisible(false)}>
-                                    <Text>Cancel</Text>
+                                    <Text style={[inv_styles.manual_btn_text, {fontSize: 18, fontWeight: '500'}]}>Cancel</Text>
                                 </Pressable>
                             </View>
-                            <View style={{flex: 1, alignItems: 'center'}}>
+                            <View style={inv_styles.manual_buttons}>
                                 <Pressable onPress={addToInventory}>
-                                    
-                                    <Text>Add</Text>
+                                    <Text style={[inv_styles.manual_btn_text, {fontSize: 18, fontWeight: '500'}]}>Add</Text>
                                 </Pressable>
                             </View>
                         </View>
@@ -271,6 +261,42 @@ const inv_styles = StyleSheet.create({
         marginBottom: 5,
         borderRadius: 10,
         backgroundColor: '#3F6C51',
+    },
+
+    manual_screen : {
+        backgroundColor: '#fff', 
+        width: '75%', // fixed width
+        height: '45%', // fixed height
+        margin: 50,
+        padding: 20, 
+        borderRadius: 10, 
+        alignSelf: 'center', 
+        justifyContent: 'space-between', 
+        borderWidth: 1, 
+        borderColor: '#000',
+    },
+
+    manual_buttons_container: {
+        flexDirection: 'row',
+        alignItems: 'space-between',
+        justifyContent: 'center',
+    },
+    manual_header_container: {
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexDirection: 'row',
+        marginBottom: 15,
+    },
+    manual_buttons: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#3F6C51',
+        paddingTop: 10,
+        paddingBottom: 10,
+        marginLeft: 15,
+        marginRight: 15,
+        borderRadius: 10,
     },
 
     manual_btn_text: {
