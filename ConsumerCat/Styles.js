@@ -21,13 +21,25 @@ const styles = StyleSheet.create({
         width: '100%',     // Set the width to 100% to span the whole screen
         height: 1,         // Set the height to the desired thickness of the line
         backgroundColor: '#3F6C51',
-        marginBottom: 10
+        marginBottom: 15
+    },
+
+    vertical_line: {
+        height: '100%',
+        width: 2,
+        backgroundColor: '#AAAAAA'
     },
 
     hz_align_items: {
         flexDirection: 'row',
-        alignItems: 'space-between',
-        justifyContent: 'center'
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        marginTop: 10
+    },
+
+    valign_items: {
+        alignItems: 'center',
+        justifyContent:'center'
     },
 
     input: {

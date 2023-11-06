@@ -123,7 +123,7 @@ const InventoryScreen = ({ route }) => {
                                 placeholderTextColor='black'
                                 value={itemName}
                                 onChangeText={handleSearch}
-                                style={{ marginBottom: 10, width: 120, height: 30, color: 'Black'}, styles.input }
+                                style={[{marginBottom: 10, width: 120, height: 30, color: 'Black'}, styles.input]}
                             />
 
                             <FlatList
@@ -157,7 +157,6 @@ const InventoryScreen = ({ route }) => {
                                 </View>
                                 <View style={{flex: 1, alignItems: 'center'}}>
                                     <Pressable onPress={addToInventory}>
-                                        
                                         <Text>Add</Text>
                                     </Pressable>
                                 </View>
@@ -249,7 +248,7 @@ const inv_styles = StyleSheet.create({
         alignItems: 'left',
         justifyContent: 'top',
         backgroundColor: '#E3FDE0',
-        paddingTop: 80,
+        paddingTop: 60,
         padding: 20,
     },
 
