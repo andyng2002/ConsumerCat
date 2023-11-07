@@ -238,7 +238,7 @@ const inv_styles = StyleSheet.create({
         alignItems: 'left',
         justifyContent: 'top',
         backgroundColor: '#E3FDE0',
-        paddingTop: 80,
+        paddingTop: 60,
         padding: 20,
     },
 
