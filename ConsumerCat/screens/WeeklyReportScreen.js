@@ -6,7 +6,6 @@ import Svg, { G, Circle } from 'react-native-svg'
 import { styles } from '../Styles';
 import { auth, db } from '../firebaseConfig';
 
-
 // creating graph: https://dev.to/franciscomendes10866/how-to-create-a-donut-chart-using-react-native-svg-30m9 
 
 const WeeklyReportScreen = () => {
@@ -17,8 +16,6 @@ const WeeklyReportScreen = () => {
     const graphRadius = 70;
     const graphCircumference = 2 * Math.PI * graphRadius;
 
-    // var totalQuantity = 0;
-    // var totalExpired = 2;
     const percentage = totalQuantity === 0 ? 0 : Math.round(((totalQuantity - totalExpired)/totalQuantity) * 100);
     const strokeDashoffset = 
         graphCircumference - (graphCircumference * percentage) / 100;
