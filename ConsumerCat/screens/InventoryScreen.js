@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, View, ScrollView, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal } from 'react-native';
+import { Alert, FlatList, View, ScrollView, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import { SwipeListView } from 'react-native-swipe-list-view';
+import { format } from 'date-fns';
+
 import { styles } from '../Styles';
 import Item from '../components/Item';
 import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
-import { FlatList } from 'react-native';
-import { SwipeListView } from 'react-native-swipe-list-view';
+
+ 
 
 const InventoryScreen = ({ route }) => {
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
@@ -14,6 +18,7 @@ const InventoryScreen = ({ route }) => {
     const { uid } = route.params;
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
+    const isFocused = useIsFocused();
 
     // const handleManualAddButton = () => {
     //     setManualAddModalVisible(false);
@@ -35,12 +40,28 @@ const InventoryScreen = ({ route }) => {
                     });
                 } else {
                     // If item doesn't exist, create a new entry
+
+                    // default bought date to current date, formatted for other calculations
+                    const today = format(new Date(), ' MM/dd/yyyy');
+
+                    /*
+                    PRINCESS TO-DO
+                    check item in productDatabase
+                        if it exists
+                            expirationDate: bought date + expiresInDays (from productDatabase)
+                            --> expirationDate = addDays(bought date, expiresInDays)
+                        if doesn't exist, use one week as default expiresInDays
+                            expirationDate: bought date + 7 days 
+                            --> expirationDate = addDays(bought date, 7)
+                    */
+
                     return itemRef.set({
                         itemName: itemName,
                         quantity: itemQty,
                         // daysSincePurchase: item.daysSincePurchase,
                         // daysLeft: item.daysLeft,
-                        daysSincePurchase: 5,
+                        bought: today,
+                        expirationDate: today,
                         daysLeft: 12,
                     });
                 }
@@ -172,6 +193,7 @@ const InventoryScreen = ({ route }) => {
               .collection('items')
               .onSnapshot((snapshot) => {
                 const inventoryData = snapshot.docs.map((doc) => doc.data());
+                inventoryData.forEach(item => console.log(item.bought))
                 setItemList(inventoryData);
               });
           }
@@ -196,8 +218,10 @@ const InventoryScreen = ({ route }) => {
     }
 
     useEffect(() => {
-      fetchInventoryItems();
-    }, []);
+        if (isFocused) {
+            fetchInventoryItems();
+        }   
+    }, [isFocused]);
   
 
     return (
