@@ -215,7 +215,7 @@ const InventoryScreen = ({ route }) => {
                 </View>
                 <View style={styles.horizontal_line} />
                 
-                <ScrollView style={{ inv_styles.inventory }}>
+                <ScrollView style={inv_styles.inventory}>
                     <SwipeListView
                         data={itemList}
                         renderItem={({ item }) => (
