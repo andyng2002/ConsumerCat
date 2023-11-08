@@ -7,12 +7,11 @@ import { styles } from '../Styles';
 import { auth, db } from '../firebaseConfig';
 
 
-
 // creating graph: https://dev.to/franciscomendes10866/how-to-create-a-donut-chart-using-react-native-svg-30m9 
 
 const WeeklyReportScreen = () => {
     const [ totalQuantity, setTotalQuantity ] = useState(0);
-    const [ totalExpired, setTotalExpired ] = useState(2);
+    const [ totalExpired, setTotalExpired ] = useState(0);
     const isFocused = useIsFocused();
 
     const graphRadius = 70;
@@ -44,12 +43,14 @@ const WeeklyReportScreen = () => {
                 .collection('items')
                 .onSnapshot((snapshot) => {
                   const inventoryData = snapshot.docs.map((doc) => doc.data());
-                  inventoryData.forEach(item => {
-                    inventoryTotal += parseInt(item.quantity);
-                  }) 
-                  console.log(inventoryData[2].quantity);
-                  console.log(`inventoryTotal ${inventoryTotal}`);
-                  setTotalQuantity(inventoryTotal);
+                  if (inventoryData) {
+                    inventoryData.forEach(item => {
+                        inventoryTotal += parseInt(item.quantity);
+                      }) 
+                    setTotalQuantity(inventoryTotal);
+                  } else {
+                    setTotalQuantity(0);
+                  }
                 });
             }
         } catch (error) {
@@ -59,7 +60,9 @@ const WeeklyReportScreen = () => {
 
     // refreshes report data whenever user goes to Weekly Report Screen
     useEffect(() => {
-        fetchFoodReport();
+        if (isFocused) {
+            fetchFoodReport();
+        }
     }, [isFocused])
 
     

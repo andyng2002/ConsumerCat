@@ -189,7 +189,7 @@ const InventoryScreen = ({ route }) => {
         .then(() => {
           const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
           setItemList(updatedItemList);
-        })
+         })
         .catch((error) => {
           console.error('Error deleting item from Firebase:', error);
         });
