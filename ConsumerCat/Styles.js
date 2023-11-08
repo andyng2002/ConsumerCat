@@ -49,6 +49,37 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         borderRadius: 5,
     },
+    hiddenContainer: { 
+        // flexDirection: 'row', 
+        // justifyContent: 'flex-end', 
+        // alignItems: 'center', 
+        // backgroundColor: '#FFF', 
+        // height: 80, 
+        // borderRadius: 20, 
+        backgroundColor: '#FFF',
+        padding: 15,
+        borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        marginBottom: 20,
+        width: '100%',
+    }, 
+    hiddenButton: { 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        width: 75, 
+        height: 60, 
+    }, 
+    deleteButton: { 
+        backgroundColor: '#E74C3C', // Red 
+        borderRadius: 20, 
+    }, 
+    buttonText: { 
+        color: '#FFF', 
+        fontSize: 16, 
+        fontWeight: 'bold', 
+    }, 
 })
 
 export { styles }

@@ -5,6 +5,7 @@ import Item from '../components/Item';
 import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
 import { FlatList } from 'react-native';
+import { SwipeListView } from 'react-native-swipe-list-view';
 
 const InventoryScreen = ({ route }) => {
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
@@ -179,6 +180,21 @@ const InventoryScreen = ({ route }) => {
       }
     };
 
+    const deleteItem = (itemName) => {
+        db.collection('users')
+        .doc(uid)
+        .collection('items')
+        .doc(itemName)
+        .delete()
+        .then(() => {
+          const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
+          setItemList(updatedItemList);
+        })
+        .catch((error) => {
+          console.error('Error deleting item from Firebase:', error);
+        });
+    }
+
     useEffect(() => {
       fetchInventoryItems();
     }, []);
@@ -199,14 +215,25 @@ const InventoryScreen = ({ route }) => {
                 </View>
                 <View style={styles.horizontal_line} />
                 
-                <ScrollView style={inv_styles.inventory}>
-                    {
-                        itemList.map((item, index) => {
-                            return (
-                                <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} key={index}/>
-                            )
-                        })
-                    }
+                <ScrollView style={{ inv_styles.inventory }}>
+                    <SwipeListView
+                        data={itemList}
+                        renderItem={({ item }) => (
+                            <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} />
+                        )}
+                        renderHiddenItem={(data) => (
+                            <View style={styles.hiddenContainer}> 
+                                <TouchableOpacity 
+                                    style={[styles.hiddenButton, styles.deleteButton]} 
+                                    onPress={() => deleteItem(data.item.itemName)} 
+                                > 
+                                    <Text style={styles.buttonText}>Delete</Text> 
+                                </TouchableOpacity> 
+                            </View>
+                        )}
+                        leftOpenValue={0} // Width of left hidden content (0 for no left content)
+                        rightOpenValue={-100} // Width of right hidden content (0 for no right content)
+                    />
                 </ScrollView>
 
     
