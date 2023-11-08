@@ -1,23 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { styles } from '../Styles';
+import { useIsFocused } from '@react-navigation/native';
 import Svg, { G, Circle } from 'react-native-svg'
+
+import { styles } from '../Styles';
+import { auth, db } from '../firebaseConfig';
+
 
 
 // creating graph: https://dev.to/franciscomendes10866/how-to-create-a-donut-chart-using-react-native-svg-30m9 
 
 const WeeklyReportScreen = () => {
-    const [foodWastePercentage, setFoodWastePercentage] = useState('');
+    const [ totalQuantity, setTotalQuantity ] = useState(0);
+    const [ totalExpired, setTotalExpired ] = useState(2);
+    const isFocused = useIsFocused();
+
     const graphRadius = 70;
     const graphCircumference = 2 * Math.PI * graphRadius;
 
-    const totalQuantity = 100;
-    const totalExpired = 20;
-    const percentage = ((totalQuantity - totalExpired)/totalQuantity) * 100;
+    // var totalQuantity = 0;
+    // var totalExpired = 2;
+    const percentage = totalQuantity === 0 ? 0 : Math.round(((totalQuantity - totalExpired)/totalQuantity) * 100);
     const strokeDashoffset = 
         graphCircumference - (graphCircumference * percentage) / 100;
 
-    const fetchFoodWaste = async () => {
+    const fetchFoodReport = async () => {
+        var inventoryTotal = 0;
         /*
         figure out total quantity by going through the items list and adding up all the quantities of each item
         figure out which ones are expired
@@ -36,13 +44,23 @@ const WeeklyReportScreen = () => {
                 .collection('items')
                 .onSnapshot((snapshot) => {
                   const inventoryData = snapshot.docs.map((doc) => doc.data());
-                  setItemList(inventoryData);
+                  inventoryData.forEach(item => {
+                    inventoryTotal += parseInt(item.quantity);
+                  }) 
+                  console.log(inventoryData[2].quantity);
+                  console.log(`inventoryTotal ${inventoryTotal}`);
+                  setTotalQuantity(inventoryTotal);
                 });
             }
         } catch (error) {
             console.error('Error fetching inventory items:', error);
         }
       };
+
+    // refreshes report data whenever user goes to Weekly Report Screen
+    useEffect(() => {
+        fetchFoodReport();
+    }, [isFocused])
 
     
     return (
@@ -91,16 +109,16 @@ const WeeklyReportScreen = () => {
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'top', justifyContent: 'space-evenly', paddingTop: 5}}>
                     <View style={{alignItems: 'center', marginVertical: 5}}>
-                        <Text style={wkrp_styles.savingsText}>$0</Text>
-                        <Text>saved from using</Text>
-                        <Text>your food before</Text>
-                        <Text>they expired</Text>
+                        <Text style={wkrp_styles.savingsText}>{totalQuantity-totalExpired}</Text>
+                        <Text>items ready</Text>
+                        <Text>to be consumed</Text>
+                        {/* <Text>they expired</Text> */}
                     </View>
                     <View style={styles.vertical_line}></View>
                     <View style={{alignItems: 'center', marginVertical: 5}}>
-                        <Text style={wkrp_styles.wastedText}>$0</Text>
-                        <Text>wasted from your</Text>
-                        <Text>expired foods</Text>
+                        <Text style={wkrp_styles.wastedText}>{totalExpired}</Text>
+                        <Text>items wasted</Text>
+                        <Text>due to expiration</Text>
                     </View>
                 </View>
             </View>
