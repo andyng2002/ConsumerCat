@@ -122,7 +122,7 @@ const InventoryScreen = ({ route }) => {
                             placeholderTextColor='black'
                             value={itemName}
                             onChangeText={handleSearch}
-                            style={[styles.input, {marginBottom: 10, width: '100%', height: 30, color: 'Black'}]}
+                            style={[styles.input, {marginBottom: 10, width: '100%', height: 30, color: 'black'}]}
                         />
 
                         <FlatList
