@@ -69,12 +69,6 @@ export default function TabContainer({ route }) {
         }
       }      
 
-    // const deleteItem = (index) => {
-    //     let itemsCopy = [...itemList];
-    //     itemsCopy.splice(index, 1);
-    //     setItemList(itemsCopy)
-    //   }
-
     return (
         <ItemContext.Provider value={{item, setItem, itemList, setItemList, handleAddItem}}>
         <Tab.Navigator 
