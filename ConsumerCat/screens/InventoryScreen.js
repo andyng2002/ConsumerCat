@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Alert, FlatList, View, ScrollView, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 
 import { styles } from '../Styles';
 import Item from '../components/Item';
@@ -15,7 +15,7 @@ const InventoryScreen = ({ route }) => {
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
     const [ itemName, setItemName ] = useState('');
     const [ itemQty, setItemQty ] = useState('');
-    const { uid } = route.params;
+     const { uid } = route.params;
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const isFocused = useIsFocused();
@@ -25,12 +25,12 @@ const InventoryScreen = ({ route }) => {
     //     setItemName('');
     //     setItemQty('');
     // }
-    
+
     const addToInventory = () => {
         if (itemName && itemQty) {
             const itemRef = db.collection('users').doc(uid).collection('items').doc(itemName);
     
-            itemRef.get().then((doc) => {
+            itemRef.get().then(async (doc) => {
                 if (doc.exists) {
                     console.log("here")
                     // If item already exists, update the quantity
@@ -40,28 +40,35 @@ const InventoryScreen = ({ route }) => {
                     });
                 } else {
                     // If item doesn't exist, create a new entry
+                    var itemExpiration = 7;
 
-                    // default bought date to current date, formatted for other calculations
-                    const today = format(new Date(), ' MM/dd/yyyy');
+                    const itemQuerySnapshot = await db.collection('productDatabase')
+                        .where('fullName', '>=', itemName)
+                        .where('fullName', '<=', itemName + '\uf8ff')
+                        .get();
+            
+                    itemQuerySnapshot.docs.map(doc => {
+                        const data = doc.data();
+                        if (data) {
+                            // if item is in productDatabase, get its expiresInDays
+                            // console.log(parseInt(data.expiresInDays));
+                            itemExpiration = parseInt(data.expiresInDays);
+                         }
+                    });
 
-                    /*
-                    PRINCESS TO-DO
-                    check item in productDatabase
-                        if it exists
-                            expirationDate: bought date + expiresInDays (from productDatabase)
-                            --> expirationDate = addDays(bought date, expiresInDays)
-                        if doesn't exist, use one week as default expiresInDays
-                            expirationDate: bought date + 7 days 
-                            --> expirationDate = addDays(bought date, 7)
-                    */
+                    console.log(`daysToExpiration: ${itemExpiration}`);
+                    const expirationDate = addDays(new Date(), itemExpiration);
+                    const expirationDateFormatted = format(expirationDate, 'MM/dd/yyyy');
+                    console.log(`expirationDate: ${expirationDateFormatted}`);
+                    const boughtDateFormatted = format(new Date(), 'MM/dd/yyyy');
 
                     return itemRef.set({
                         itemName: itemName,
                         quantity: itemQty,
                         // daysSincePurchase: item.daysSincePurchase,
                         // daysLeft: item.daysLeft,
-                        bought: today,
-                        expirationDate: today,
+                        bought: boughtDateFormatted,
+                        expirationDate: expirationDateFormatted,
                         daysLeft: 12,
                     });
                 }
@@ -193,7 +200,7 @@ const InventoryScreen = ({ route }) => {
               .collection('items')
               .onSnapshot((snapshot) => {
                 const inventoryData = snapshot.docs.map((doc) => doc.data());
-                inventoryData.forEach(item => console.log(item.bought))
+                // inventoryData.forEach(item => console.log(item));
                 setItemList(inventoryData);
               });
           }
@@ -243,7 +250,7 @@ const InventoryScreen = ({ route }) => {
                     <SwipeListView
                         data={itemList}
                         renderItem={({ item }) => (
-                            <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} />
+                            <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} expirationDate={item.expirationDate} bought={item.bought}/>
                         )}
                         renderHiddenItem={(data) => (
                             <View style={styles.hiddenContainer}> 

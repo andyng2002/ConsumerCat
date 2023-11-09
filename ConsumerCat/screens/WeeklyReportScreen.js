@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import Svg, { G, Circle } from 'react-native-svg'
+import { differenceInCalendarDays } from 'date-fns';
 
 import { styles } from '../Styles';
 import { auth, db } from '../firebaseConfig';
@@ -16,37 +17,48 @@ const WeeklyReportScreen = () => {
     const graphRadius = 70;
     const graphCircumference = 2 * Math.PI * graphRadius;
 
-    const percentage = totalQuantity === 0 ? 0 : Math.round(((totalQuantity - totalExpired)/totalQuantity) * 100);
+    var percentage = totalQuantity === 0 ? 0 : Math.round(((totalQuantity - totalExpired)/totalQuantity) * 100);
     const strokeDashoffset = 
         graphCircumference - (graphCircumference * percentage) / 100;
 
+    var cat_status = 'HAPPY';
+
+    if (percentage > 50) {
+        cat_status = 'HAPPY';
+        imageSource = require(`../assets/HAPPY_CAT.jpeg`);
+    } else {
+        cat_status = 'SAD';
+        imageSource = require(`../assets/SAD_CAT.jpeg`);
+    }
+
     const fetchFoodReport = async () => {
         var inventoryTotal = 0;
-        /*
-        figure out total quantity by going through the items list and adding up all the quantities of each item
-        figure out which ones are expired
-        expired/total * 100 = percentage
-        */
+        var expired = 0;
+
         try {
             const user = auth.currentUser;
             if (user) {
-                // const userDoc = await db.collection('users').doc(user.uid).get();
-                // const userData = userDoc.data();
-  
-                // if (userData && userData.items) {
-                //     setItemList(userData.items);
-                // }
                 const userDoc = await db.collection('users').doc(user.uid)
                 .collection('items')
                 .onSnapshot((snapshot) => {
                   const inventoryData = snapshot.docs.map((doc) => doc.data());
                   if (inventoryData) {
                     inventoryData.forEach(item => {
+                        const expDateRaw = item.expirationDate.split('/');
+                        const expDateFormatted = new Date(parseInt(expDateRaw[2], 10), parseInt(expDateRaw[0], 10) - 1, parseInt(expDateRaw[1], 10));
+                        const daysLeft = differenceInCalendarDays(expDateFormatted, new Date())
+
                         inventoryTotal += parseInt(item.quantity);
+                        if (daysLeft < 1) {
+                            expired += parseInt(item.quantity);
+                        }
+
                       }) 
                     setTotalQuantity(inventoryTotal);
+                    setTotalExpired(expired);
                   } else {
                     setTotalQuantity(0);
+                    setTotalExpired(0);
                   }
                 });
             }
@@ -71,8 +83,8 @@ const WeeklyReportScreen = () => {
                 <View style={styles.hz_align_items}>
                     <View style={styles.valign_items}>
                         <Text>Your cat is...</Text>
-                        <Text style={{fontWeight: 'bold'}}>HAPPY</Text>
-                        <Image source={require('../assets/happy_cat.jpeg')} style={wkrp_styles.image}/>
+                        <Text style={{fontWeight: 'bold'}}>{cat_status}</Text>
+                        <Image source={imageSource} style={wkrp_styles.image}/>
                     </View>
                     <View style={wkrp_styles.graphWrapper}>
                         <Svg height='160' width='160' viewBox='0 0 180 180'>
@@ -153,10 +165,6 @@ const wkrp_styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#000000',
         paddingVertical: 15
-    },
-
-    cat_status: {
-
     },
 
     graphWrapper: {
