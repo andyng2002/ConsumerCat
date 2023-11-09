@@ -5,6 +5,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Ionicons } from '@expo/vector-icons';
 import { db } from '../firebaseConfig';
 import { auth } from '../firebaseConfig';
+import { format, addDays } from 'date-fns';
 
 /*
 resources: https://www.youtube.com/watch?v=LtbuOgoQJAg
@@ -125,6 +126,11 @@ const ScannerScreen = ({ route }) => {
     
 
     const addToInventory = () => {
+        var itemExpiration = 7;
+        const expirationDate = addDays(new Date(), itemExpiration);
+        const expirationDateFormatted = format(expirationDate, 'MM/dd/yyyy');
+        const boughtDateFormatted = format(new Date(), 'MM/dd/yyyy');
+
         if (scannedItem && uid && scannedUPC) {  // Make sure all the required data is available
             // Use UPC as the document ID
             const itemRef = db.collection('users').doc(uid).collection('items').doc(scannedUPC);
@@ -141,7 +147,10 @@ const ScannerScreen = ({ route }) => {
                     return itemRef.set({
                         ...scannedItem,
                         itemName: scannedItem.productName,  // Adding itemName field
-                        quantity: quantity  // Also adding quantity
+                        quantity: quantity,  // Also adding quantity
+                        bought: boughtDateFormatted,
+                        expirationDate: expirationDateFormatted,
+                        daysLeft: 12,
                     });
                 }
             })

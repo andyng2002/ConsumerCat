@@ -25,7 +25,7 @@ const WeeklyReportScreen = () => {
 
     if (percentage > 50) {
         cat_status = 'HAPPY';
-        imageSource = require(`../assets/HAPPY_CAT.jpeg`);
+        imageSource = require(`../assets/happy_cat.jpeg`);
     } else {
         cat_status = 'SAD';
         imageSource = require(`../assets/SAD_CAT.jpeg`);
