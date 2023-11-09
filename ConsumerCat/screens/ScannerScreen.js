@@ -63,6 +63,7 @@ const ScannerScreen = ({ route }) => {
     
             // Existing code to set scanned UPC
             setScannedUPC(data);
+            console.log(data);
     
             // Fetch the product name here
             const productRef = db.collection('productDatabase').doc(data);
@@ -146,7 +147,7 @@ const ScannerScreen = ({ route }) => {
                     // If item doesn't exist, create a new entry
                     return itemRef.set({
                         ...scannedItem,
-                        itemName: scannedItem.productName,  // Adding itemName field
+                        itemName: scannedItem.brand + " " + scannedItem.productName,  // Adding itemName field
                         quantity: quantity,  // Also adding quantity
                         bought: boughtDateFormatted,
                         expirationDate: expirationDateFormatted,

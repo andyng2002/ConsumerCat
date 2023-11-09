@@ -9,6 +9,7 @@ import Item from '../components/Item';
 import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
 
+import { productDictionary } from '../ProductInfo/productDictionary.js';
  
 
 const InventoryScreen = ({ route }) => {
@@ -28,7 +29,7 @@ const InventoryScreen = ({ route }) => {
 
     const addToInventory = () => {
         if (itemName && itemQty) {
-            const itemRef = db.collection('users').doc(uid).collection('items').doc(itemName);
+            const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[itemName].UPC);
     
             itemRef.get().then(async (doc) => {
                 if (doc.exists) {
@@ -67,6 +68,7 @@ const InventoryScreen = ({ route }) => {
                         quantity: itemQty,
                         // daysSincePurchase: item.daysSincePurchase,
                         // daysLeft: item.daysLeft,
+                        imageURL: productDictionary[itemName].image,
                         bought: boughtDateFormatted,
                         expirationDate: expirationDateFormatted,
                         daysLeft: 12,
@@ -213,7 +215,7 @@ const InventoryScreen = ({ route }) => {
         db.collection('users')
         .doc(uid)
         .collection('items')
-        .doc(itemName)
+        .doc(productDictionary[itemName].UPC)
         .delete()
         .then(() => {
           const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
