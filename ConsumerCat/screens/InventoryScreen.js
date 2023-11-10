@@ -252,7 +252,7 @@ const InventoryScreen = ({ route }) => {
                     <SwipeListView
                         data={itemList}
                         renderItem={({ item }) => (
-                            <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} expirationDate={item.expirationDate} bought={item.bought}/>
+                            <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} expirationDate={item.expirationDate} bought={item.bought} imageUrl={item.imageURL} /> 
                         )}
                         renderHiddenItem={(data) => (
                             <View style={styles.hiddenContainer}> 

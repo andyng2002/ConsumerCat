@@ -24,7 +24,7 @@ const Item = (props) => {
     
     return (
         <View style={styles.item}>
-            <Image source={require('../assets/apple.png')} style={styles.image}/>
+            <Image source={{ uri: props.imageUrl }} style={styles.image}/>
             <Text style={styles.quantity}>{props.quantity}</Text>
             <View>
                 <Text numberOfLines={2} ellipsizeMode='tail' style={{fontSize: 20, fontWeight: 'bold', width: 180}}>{props.itemName} </Text>

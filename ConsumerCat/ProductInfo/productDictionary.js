@@ -4,7 +4,7 @@ let productDictionary = {
       image: "https://images.publixcdn.com/pct/images/products/90000/090853-600x600-A.jpg"
     },
     "Coca-Cola Pibb Xtra": {
-        UPC: "",
+        UPC: "0049000029796",
       image: "https://images.publixcdn.com/pct/images/products/390000/393400-600x600-A.jpg"
     },
     "Kraft Sharp Cheddar Cheese": {
