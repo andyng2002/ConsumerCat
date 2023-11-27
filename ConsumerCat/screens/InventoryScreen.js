@@ -16,8 +16,10 @@ const InventoryScreen = ({ route }) => {
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
     const [ itemName, setItemName ] = useState('');
     const [ itemQty, setItemQty ] = useState('');
-     const { uid } = route.params;
+    const [ itemDaysLeft, setItemDaysLeft ] = useState('');
+    const { uid } = route.params;
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
+    const [editModalVisible, setEditModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const isFocused = useIsFocused();
 
@@ -26,6 +28,33 @@ const InventoryScreen = ({ route }) => {
     //     setItemName('');
     //     setItemQty('');
     // }
+
+    const changeQuantity = () => {
+        if (itemName && itemQty) {
+            const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[itemName].UPC);
+    
+            itemRef.get().then(async (doc) => {
+                if (doc.exists) {
+                    return itemRef.update({
+                        quantity: parseInt(itemQty)
+                    });
+                } else {
+                    console.log("not here")
+                }
+            })
+            .then(() => {
+                Alert.alert('Success', 'Quantity updated');
+            })
+            .catch((error) => {
+                console.error("Error adding or updating document: ", error);
+            });
+    
+            setItemName(null);
+            setItemQty(null);
+        } else {
+            Alert.alert('Error', 'Could not edit');
+        }
+    }
 
     const addToInventory = () => {
         if (itemName && itemQty) {
@@ -188,6 +217,67 @@ const InventoryScreen = ({ route }) => {
         )
     }
 
+    const EditModal = () => {
+        return (
+            <Modal
+            animationType="slide"
+            visible={editModalVisible}
+            transparent={true}
+            onRequestClose={() => {
+                setEditModalVisible(!editModalVisible);
+            }}>
+                <View style={{ backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center' }}>
+                    <View style={inv_styles.manual_screen}>
+                        <View style={inv_styles.manual_header_container}>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold'}}>Edit Item</Text>                  
+                        </View>
+                
+                        <View style={{flexDirection: 'row', alignItems: 'center',}}>
+                            <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Quantity: </Text>
+                            <TextInput
+                                style={[{width: 30, height: 30}, styles.input]}
+                                onChangeText={ qty => setItemQty(qty)}
+                                keyboardType='numeric'
+                            />
+                            <View style={inv_styles.manual_buttons}>
+                                <Pressable onPress={()=>{changeQuantity()}}>
+                                    <Text style={[inv_styles.manual_btn_text, {fontSize: 18, fontWeight: '500'}]}>Set</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                                        
+                        {/* <View style={{flexDirection: 'row', alignItems: 'center',}}>
+                            <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Days Left: </Text>
+                            <TextInput
+                                style={[{width: 30, height: 30}, styles.input]}
+                                onChangeText={ qty => setItemDaysLeft(qty)}
+                                keyboardType='numeric'
+                            />
+                            <View style={inv_styles.manual_buttons}>
+                                <Pressable onPress={()=>{changeDaysLeft()}}>
+                                    <Text style={[inv_styles, {fontSize: 18, fontWeight: '500', color: 'white'}]}>Add</Text>
+                                </Pressable>
+                            </View>
+                        </View> */}
+    
+                        <View style={inv_styles.manual_buttons_container}>
+                            <View style={inv_styles.manual_buttons}> 
+                                <Pressable
+                                    onPress={() => {
+                                        setEditModalVisible(false)
+                                        setItemName(null)
+                                        setItemQty(null)
+                                    }}>
+                                    <Text style={[inv_styles.manual_btn_text, {fontSize: 18, fontWeight: '500'}]}>Cancel</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
     const fetchInventoryItems = async () => {
       try {
           const user = auth.currentUser;
@@ -257,15 +347,24 @@ const InventoryScreen = ({ route }) => {
                         renderHiddenItem={(data) => (
                             <View style={styles.hiddenContainer}> 
                                 <TouchableOpacity 
+                                    style={[styles.hiddenButton, styles.editButton]} 
+                                    onPress={() => {
+                                        setEditModalVisible(true);
+                                        setItemName(data.item.itemName)
+                                    }} 
+                                > 
+                                    <Text style={styles.buttonText}>Edit</Text> 
+                                </TouchableOpacity>
+                                <TouchableOpacity 
                                     style={[styles.hiddenButton, styles.deleteButton]} 
                                     onPress={() => deleteItem(data.item.itemName)} 
                                 > 
                                     <Text style={styles.buttonText}>Delete</Text> 
-                                </TouchableOpacity> 
+                                </TouchableOpacity>
                             </View>
                         )}
-                        leftOpenValue={0} // Width of left hidden content (0 for no left content)
-                        rightOpenValue={-100} // Width of right hidden content (0 for no right content)
+                        leftOpenValue={0}
+                        rightOpenValue={-165}
                     />
                 </ScrollView>
 
@@ -284,6 +383,7 @@ const InventoryScreen = ({ route }) => {
                     <Text>Add Item</Text>
                 </TouchableOpacity> */}
                 {ManualAddModal()}
+                {EditModal()}
             </View>
         </TouchableWithoutFeedback>
     );
@@ -369,3 +469,31 @@ const inv_styles = StyleSheet.create({
 });
 
 export default InventoryScreen;
+
+
+const changeDaysLeft = () => {
+    if (itemName && itemDaysLeft) {
+        const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[itemName].UPC);
+
+        itemRef.get().then(async (doc) => {
+            if (doc.exists) {
+                return itemRef.update({
+                    daysLeft: parseInt(itemDaysLeft)
+                });
+            } else {
+                console.log("not here")
+            }
+        })
+        .then(() => {
+            Alert.alert('Success', 'Quantity updated');
+        })
+        .catch((error) => {
+            console.error("Error adding or updating document: ", error);
+        });
+
+        setItemName(null);
+        setItemQty(null);
+    } else {
+        Alert.alert('Error', 'Could not edit');
+    }
+}

@@ -68,12 +68,18 @@ const styles = StyleSheet.create({
     hiddenButton: { 
         justifyContent: 'center', 
         alignItems: 'center', 
-        width: 75, 
-        height: 60, 
+        width: 70, 
+        height: 60,
     }, 
     deleteButton: { 
-        backgroundColor: '#E74C3C', // Red 
-        borderRadius: 20, 
+        backgroundColor: '#E74C3C',
+        borderRadius: 20,
+        marginLeft: 10
+    }, 
+    editButton: { 
+        backgroundColor: 'gray',
+        borderRadius: 20,
+        marginLeft: 10
     }, 
     buttonText: { 
         color: '#FFF', 
