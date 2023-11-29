@@ -27,7 +27,7 @@ const Item = (props) => {
             <Image source={{ uri: props.imageUrl }} style={styles.image}/>
             <Text style={styles.quantity}>{props.quantity}</Text>
             <View>
-                <Text numberOfLines={2} ellipsizeMode='tail' style={{fontSize: 20, fontWeight: 'bold', width: 180}}>{props.itemName} </Text>
+                <Text numberOfLines={2} ellipsizeMode='tail' style={{fontSize: 20, fontWeight: 'bold', width: 150}}>{props.itemName} </Text>
                 <Text style={{fontSize: 10, color: '#988E8E'}}>Bought: {props.bought}</Text>
             </View>
             <View style = {[{backgroundColor: expirationStatus}, styles.daysLeft]}>
@@ -43,11 +43,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         padding: 15,
         borderRadius: 10,
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center',
         marginBottom: 20,
-        width: '100%',
-        justifyContent: 'space-between'
+        width: '48%',
+        // justifyContent: 'space-between'
+        marginRight: '2%',
     },
     quantity: {
         backgroundColor: '#D9D9D9',

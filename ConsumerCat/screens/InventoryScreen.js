@@ -339,7 +339,7 @@ const InventoryScreen = ({ route }) => {
                 <View style={styles.horizontal_line} />
                 
                 <ScrollView style={inv_styles.inventory}>
-                    <SwipeListView
+                    {/* <SwipeListView
                         data={itemList}
                         renderItem={({ item }) => (
                             <Item itemName={item.itemName} quantity={item.quantity} daysLeft={item.daysLeft} expirationDate={item.expirationDate} bought={item.bought} imageUrl={item.imageURL} /> 
@@ -365,6 +365,21 @@ const InventoryScreen = ({ route }) => {
                         )}
                         leftOpenValue={0}
                         rightOpenValue={-165}
+                    /> */}
+                    <FlatList
+                        data={itemList}
+                        numColumns={2}  // Set the number of columns for the grid
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item }) => (
+                            <Item
+                                itemName={item.itemName}
+                                quantity={item.quantity}
+                                daysLeft={item.daysLeft}
+                                expirationDate={item.expirationDate}
+                                bought={item.bought}
+                                imageUrl={item.imageURL}
+                            />
+                        )}
                     />
                 </ScrollView>
 
