@@ -191,7 +191,10 @@ const ScannerScreen = ({ route }) => {
         <View style={styles.container}>
             {/* Instruction Text */}
             <Text style={styles.instructionText}>
-                Scan products you want to buy or have bought to add them to your inventory!
+                Scan products you want to buy or have bought to add them to your inventory! 
+            </Text>
+            <Text style={styles.instructionNote}>
+                Note: The scanner currently only supports Publix products.
             </Text>
 
             {/* Barcode Scanner */}
@@ -236,10 +239,8 @@ const ScannerScreen = ({ route }) => {
                     <TouchableOpacity style={styles.addProductButton} onPress={addToInventory}>
                         <Ionicons name='checkmark' size={32} color='white' />
                     </TouchableOpacity>
-
                 </View>
             )}
-            
             {/* Your tab bar remains as it is */}
         </View>
     );
@@ -266,10 +267,15 @@ const styles = StyleSheet.create({
         borderRadius: 5
     },
     instructionText: {
+        marginTop: 25,
+        textAlign: 'center',
+        fontSize: 16
+    },
+    instructionNote: {
         marginTop: 20,
         textAlign: 'center',
-        marginBottom: 20,
-        fontSize: 16
+        marginBottom: 5,
+        fontSize: 12
     },
     scannerContainer: {
         flex: 1,

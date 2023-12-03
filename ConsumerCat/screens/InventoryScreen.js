@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Alert, FlatList, View, ScrollView, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal } from 'react-native';
+import { Alert, FlatList, View, ScrollView, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal, Image} from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { format, addDays } from 'date-fns';
@@ -13,6 +13,7 @@ import { productDictionary } from '../ProductInfo/productDictionary.js';
  
 
 const InventoryScreen = ({ route }) => {
+    const [ userName, setUserName ] = useState('');
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
     const [ itemName, setItemName ] = useState('');
     const [ itemQty, setItemQty ] = useState('');
@@ -22,12 +23,6 @@ const InventoryScreen = ({ route }) => {
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const isFocused = useIsFocused();
-
-    // const handleManualAddButton = () => {
-    //     setManualAddModalVisible(false);
-    //     setItemName('');
-    //     setItemQty('');
-    // }
 
     const changeQuantity = () => {
         if (itemName && itemQty) {
@@ -231,7 +226,6 @@ const InventoryScreen = ({ route }) => {
                         <View style={inv_styles.manual_header_container}>
                             <Text style={{ fontSize: 20, fontWeight: 'bold'}}>Edit Item</Text>                  
                         </View>
-                
                         <View style={{flexDirection: 'row', alignItems: 'center',}}>
                             <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Quantity: </Text>
                             <TextInput
@@ -320,14 +314,33 @@ const InventoryScreen = ({ route }) => {
         if (isFocused) {
             fetchInventoryItems();
         }   
+        const fetchUserData = async () => {
+            if (auth.currentUser) {
+              const userDocRef = db.collection('users').doc(uid);
+              userDocRef.get().then(async (doc) => {
+                if (doc.exists) {
+                    setUserName(doc.data().firstName + ' ' + doc.data().lastName);
+                } else {
+                    console.log('No such document!');
+                  }
+            })
+            }
+          };
+      
+        fetchUserData();
     }, [isFocused]);
   
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <View style={inv_styles.container}>
-                <Text style={inv_styles.hello_text}>Hello!</Text>
-                <Text style={inv_styles.display_name}>{auth.currentUser.email}</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
+                    <Image source={require(`../assets/HAPPY_CAT-removebg-preview.png`)} style={inv_styles.cat_icon}/>
+                    <View>
+                        <Text style={inv_styles.hello_text}>Hello!</Text>
+                        <Text style={inv_styles.display_name}>{userName}</Text>
+                    </View>
+                </View>
                 <View style={styles.hz_align_items}>
                     <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
                     <Pressable 
@@ -407,6 +420,12 @@ const inv_styles = StyleSheet.create({
         width: '100%',
     },
 
+    cat_icon: {
+        width: 45,
+        height: 45,
+        marginRight: 10
+    },
+
     hello_text: {
         fontSize: 22,
         fontWeight: "bold",
@@ -414,7 +433,6 @@ const inv_styles = StyleSheet.create({
 
     display_name: {
         fontSize: 14,
-        marginBottom: 30,
     },
 
     manual_btn_background: {
