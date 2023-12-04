@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Alert, FlatList, View, ScrollView, Text, StyleSheet, Keyboard, TouchableOpacity, TextInput, TouchableWithoutFeedback, Pressable, Modal, Image} from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import { format, addDays } from 'date-fns';
+import { format, addDays, differenceInCalendarDays} from 'date-fns';
 
 import { styles } from '../Styles';
 import Item from '../components/Item';
@@ -22,6 +22,7 @@ const InventoryScreen = ({ route }) => {
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
+    const [sortBy, setSortBy] = useState('asc');
     const isFocused = useIsFocused();
 
     const changeQuantity = () => {
@@ -90,8 +91,6 @@ const InventoryScreen = ({ route }) => {
                     return itemRef.set({
                         itemName: itemName,
                         quantity: itemQty,
-                        // daysSincePurchase: item.daysSincePurchase,
-                        // daysLeft: item.daysLeft,
                         imageURL: productDictionary[itemName].image,
                         bought: boughtDateFormatted,
                         expirationDate: expirationDateFormatted,
@@ -276,19 +275,37 @@ const InventoryScreen = ({ route }) => {
       try {
           const user = auth.currentUser;
           if (user) {
-              // const userDoc = await db.collection('users').doc(user.uid).get();
-              // const userData = userDoc.data();
+            const userDoc = await db.collection('users').doc(user.uid).collection('items')
+            const query = userDoc.orderBy('daysLeft', sortBy)
 
-              // if (userData && userData.items) {
-              //     setItemList(userData.items);
-              // }
-              const userDoc = await db.collection('users').doc(user.uid)
-              .collection('items')
-              .onSnapshot((snapshot) => {
+            query.get().then((snapshot) => {
                 const inventoryData = snapshot.docs.map((doc) => doc.data());
-                // inventoryData.forEach(item => console.log(item));
+
+                // update daysLeft fields of all the items in inventory
+                inventoryData.forEach((item) => {    
+                    const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[item.itemName].UPC);
+    
+                    itemRef.get().then(async (doc) => {
+                        if (doc.exists) {
+                            const expDateRaw = item.expirationDate.split('/');
+                            const expDateFormatted = new Date(parseInt(expDateRaw[2], 10), parseInt(expDateRaw[0], 10) - 1, parseInt(expDateRaw[1], 10));
+            
+                            const daysLeft = parseInt(differenceInCalendarDays(expDateFormatted, new Date()));
+                            const daysLeftFormatted = daysLeft <= 0 ? 0 : daysLeft;
+                            itemRef.update({
+                                daysLeft: daysLeftFormatted
+                            });
+                        } else {
+                            console.log("not here")
+                        }
+                    })
+                    console.log(item);
+                })
+                // populate inventory list
                 setItemList(inventoryData);
-              });
+                console.log(inventoryData);
+
+            })
           }
       } catch (error) {
           console.error('Error fetching inventory items:', error);
@@ -335,7 +352,7 @@ const InventoryScreen = ({ route }) => {
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <View style={inv_styles.container}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
-                    <Image source={require(`../assets/HAPPY_CAT-removebg-preview.png`)} style={inv_styles.cat_icon}/>
+                    <Image source={require(`../assets/HAPPY_CAT.png`)} style={inv_styles.cat_icon}/>
                     <View>
                         <Text style={inv_styles.hello_text}>Hello!</Text>
                         <Text style={inv_styles.display_name}>{userName}</Text>
@@ -344,7 +361,12 @@ const InventoryScreen = ({ route }) => {
                 <View style={styles.hz_align_items}>
                     <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
                     <Pressable 
-                        style={inv_styles.manual_btn_background}
+                        style={[{marginRight: 10, backgroundColor: '#D9D9D9'}, inv_styles.manual_btn_background]}
+                        onPress={() => {setSortBy((sortBy === 'asc') ? 'desc' : 'asc'); fetchInventoryItems();}}>
+                        <Text style={inv_styles.sort_by_btn}>Sort By</Text>
+                    </Pressable>
+                    <Pressable 
+                        style={[{backgroundColor: '#3F6C51'}, inv_styles.manual_btn_background]}
                         onPress={() => setManualAddModalVisible(true)}>
                         <Text style={inv_styles.manual_btn_text}>+</Text>
                     </Pressable>
@@ -438,13 +460,12 @@ const inv_styles = StyleSheet.create({
     manual_btn_background: {
         marginBottom: 5,
         borderRadius: 10,
-        backgroundColor: '#3F6C51',
     },
 
     manual_screen : {
         backgroundColor: '#fff', 
         width: '75%', // fixed width
-        height: '45%', // fixed height
+        height: '30%', // fixed height
         margin: 50,
         padding: 20, 
         borderRadius: 10, 
@@ -483,6 +504,14 @@ const inv_styles = StyleSheet.create({
         color: 'white',
         paddingBottom: 2, 
         paddingHorizontal: 10,
+    },
+
+    sort_by_btn: {
+        fontSize: 16,
+        color: 'black',
+        margin: 11,
+        paddingBottom: 2, 
+        paddingHorizontal: 5,
     }
 });
 

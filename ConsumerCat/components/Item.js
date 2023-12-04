@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Alert, View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
-import { format, differenceInCalendarDays} from 'date-fns';
+import React from 'react';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { differenceInCalendarDays} from 'date-fns';
 
 const Item = (props) => {
     /*
@@ -14,13 +14,7 @@ const Item = (props) => {
             calculate expiration date - current date, if negative or 0 return ! else just return days left
     */
 
-    const expDateRaw = props.expirationDate.split('/');
-    const expDateFormatted = new Date(parseInt(expDateRaw[2], 10), parseInt(expDateRaw[0], 10) - 1, parseInt(expDateRaw[1], 10));
-    
-    const daysLeft = parseInt(differenceInCalendarDays(expDateFormatted, new Date()));
-    const daysLeftFormatted = daysLeft <= 0 ? 0 : daysLeft;
-
-    const expirationStatus = daysLeft <= 0 ? '#EB4242' : daysLeft <= 7 ? '#FFCB46' : '#75BE6F';
+    const expirationStatus = props.daysLeft <= 0 ? '#EB4242' : props.daysLeft <= 7 ? '#FFCB46' : '#75BE6F';
     
     return (
         <View style={styles.item}>
@@ -31,7 +25,7 @@ const Item = (props) => {
                 <Text style={{fontSize: 10, color: '#988E8E'}}>Bought: {props.bought}</Text>
             </View>
             <View style = {[{backgroundColor: expirationStatus}, styles.daysLeft]}>
-                <Text style={{fontSize: 32, fontWeight: 'bold'}}>{daysLeftFormatted}</Text>
+                <Text style={{fontSize: 32, fontWeight: 'bold'}}>{props.daysLeft}</Text>
                 <Text style={{fontSize: 9, }}>Days Left</Text>
             </View>
         </View>
