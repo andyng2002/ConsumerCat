@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { Alert, View, Text, StyleSheet, Image, Pressable, Modal} from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import Svg, { G, Circle } from 'react-native-svg'
 import { differenceInCalendarDays } from 'date-fns';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { styles } from '../Styles';
 import { auth, db } from '../firebaseConfig';
@@ -12,6 +13,8 @@ import { auth, db } from '../firebaseConfig';
 const WeeklyReportScreen = () => {
     const [ totalQuantity, setTotalQuantity ] = useState(0);
     const [ totalExpired, setTotalExpired ] = useState(0);
+    const [ catPicIndex, setCatPicIndex ] = useState(-1)
+    const [ customizeModalVisible, setCustomizeModalVisible ] = useState(false);
     const isFocused = useIsFocused();
 
     const graphRadius = 70;
@@ -23,12 +26,25 @@ const WeeklyReportScreen = () => {
 
     var cat_status = 'HAPPY';
 
+    var accessory_images = [
+        require('../assets/HAPPY_CAT.png'),
+        require('../assets/SAD_CAT.png'),
+        require('../assets/cat-accessories/happy_bow.png'),
+        require('../assets/cat-accessories/sad_bow.png'),
+        require('../assets/cat-accessories/happy_hat.png'),
+        require('../assets/cat-accessories/sad_hat.png'),
+        require('../assets/cat-accessories/happy_glasses.png'),
+        require('../assets/cat-accessories/sad_glasses.png'),
+    ]
+
+    var imageSource = require(`../assets/HAPPY_CAT.png`);
+
     if (percentage > 50) {
         cat_status = 'HAPPY';
-        imageSource = require(`../assets/HAPPY_CAT.jpeg`);
+        imageSource = require(`../assets/HAPPY_CAT.png`);
     } else {
         cat_status = 'SAD';
-        imageSource = require(`../assets/SAD_CAT.jpeg`);
+        imageSource = require(`../assets/SAD_CAT.png`);
     }
 
     const fetchFoodReport = async () => {
@@ -67,12 +83,115 @@ const WeeklyReportScreen = () => {
         }
       };
 
+    const handleCustomizationPurchase = async (index) => {
+        // check if they have enough coins and if they do, do this:
+        var i = index;
+        if (cat_status === 'SAD') {
+            i += 1;
+        }
+        setCatPicIndex(i);
+        try {
+            await AsyncStorage.setItem('catPicIndex', i.toString());
+        } catch (error) {
+            console.error('Error saving catPicIndex value to AsyncStorage:', error);
+        }
+
+        // if they don't have enough coins, do this: 
+        // Alert.alert(
+        //     'Insufficient Funds',
+        //     'You do not have enough coins to purchase this accessory.',
+        //     [
+        //         {
+        //             text: 'OK',
+        //         },
+        //     ]
+        // );
+    }
+
+    const customizeModal = () => {
+        return (
+            <Modal
+                animationType="slide"
+                visible={customizeModalVisible}
+                transparent={true}
+                onRequestClose={() => {
+                    setCustomizeModalVisible(!customizeModalVisible);
+                }}>
+                <View style={{ backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center' }}>
+                    <View style={wkrp_styles.customize_modal}>
+                        <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 15}}>Customize</Text>
+                        <Image source={catPicIndex === -1 ? imageSource : accessory_images[catPicIndex]} style={{width: 200, height: 200, alignSelf: 'center'}}/>
+                        <View style={{borderWidth: 1, borderColor: '#000', height: 80, borderRadius: 4, alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                            <Pressable
+                                onPress={() => {
+                                    console.log('took default')
+                                    handleCustomizationPurchase(0)
+                                }}>
+                                <View style={styles.valign_items}>
+                                    <Image source={require(`../assets/default_none.png`)} style={{height: 50, width: 50, resizeMode: 'contain'}}/>
+                                    <Text>Free</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable
+                                onPress={() => {
+                                    console.log('took pink and blue bow!')
+                                    handleCustomizationPurchase(2)
+                                }}>
+                                <View style={styles.valign_items}>
+                                    <Image source={require(`../assets/pink-blue-bow.png`)} style={{height: 50, width: 50, resizeMode: 'contain'}}/>
+                                    <Text>Free</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable
+                                onPress={() => {
+                                    console.log('took blue hat!')
+                                    handleCustomizationPurchase(4)
+                                }}>
+                                <View style={styles.valign_items}>
+                                    <Image source={require(`../assets/blue-hat.png`)} style={{height: 50, width: 60, resizeMode: 'contain'}}/>
+                                    <Text>10 coins</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable
+                                onPress={() => {
+                                    console.log('took circle glasses!')
+                                    handleCustomizationPurchase(6)
+                                }}>
+                                <View style={styles.valign_items}>
+                                    <Image source={require(`../assets/circle-glasses.png`)} style={{height: 50, width: 50, resizeMode: 'contain'}}/>
+                                    <Text>25 coins</Text>
+                                </View>
+                            </Pressable>
+                        </View>
+                        <View style={{alignItems: 'center', justifyContent: 'center', backgroundColor: '#3F6C51', paddingVertical: 8, borderRadius: 15}}>
+                            <Pressable
+                                onPress={() => setCustomizeModalVisible(false)}>
+                                <Text style={{fontSize: 18, fontWeight: '500', color: 'white',}}>Close</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
     // refreshes report data whenever user goes to Weekly Report Screen
     useEffect(() => {
         if (isFocused) {
             fetchFoodReport();
+            const loadCatPic = async () => {
+                try {
+                  const value = await AsyncStorage.getItem('catPicIndex');
+                  if (value !== null) {
+                    setCatPicIndex(parseInt(value));
+                  }
+                } catch (error) {
+                  console.error('Error loading catPicIndex value from AsyncStorage:', error);
+                }
+            }
+            loadCatPic();
         }
-    }, [isFocused])
+    }, [isFocused, ])
 
     
     return (
@@ -80,43 +199,47 @@ const WeeklyReportScreen = () => {
             <Text style={styles.header}>Weekly Report</Text>
             <View style={styles.horizontal_line} />
             <View style={wkrp_styles.status_block}>
-                <View style={styles.hz_align_items}>
-                    <View style={styles.valign_items}>
-                        <Text>Your cat is...</Text>
-                        <Text style={{fontWeight: 'bold'}}>{cat_status}</Text>
-                        <Image source={imageSource} style={wkrp_styles.image}/>
-                    </View>
-                    <View style={wkrp_styles.graphWrapper}>
-                        <Svg height='160' width='160' viewBox='0 0 180 180'>
-                            <G rotation={-90} originX='90' originY='90'>
-                                <Circle
-                                    // how it becomes a donut
-                                    cx={'50%'}
-                                    cy={'50%'}
-                                    r={graphRadius}
-                                    stroke='#F1F6F9'
-                                    fill='transparent'
-                                    strokeWidth='25'
-                                />
-                                <Circle
-                                    cx={'50%'}
-                                    cy={'50%'}
-                                    r={graphRadius}
-                                    stroke='#9DE5F5'
-                                    fill='transparent'
-                                    strokeWidth='25'
-                                    strokeDasharray={graphCircumference}
-                                    strokeDashoffset={strokeDashoffset}
-                                    strokeLinecap='round'
-                                />
-                            </G>
-                        </Svg>
-                        <View style={[{position: 'absolute'}, styles.valign_items]}>
-                            <Text style={wkrp_styles.graphPercentText}>{percentage}%</Text>
-                            <Text style={wkrp_styles.graphSmallText}>of your food was</Text>
-                            <Text style={wkrp_styles.graphSmallText}>NOT wasted</Text>
-                            <Text style={wkrp_styles.graphSmallText}>this week</Text>
-                        </View>
+                <View style={styles.valign_items}>
+                    <Text>Your cat is...</Text>
+                    <Text style={{fontWeight: 'bold'}}>{cat_status}</Text>
+                    <Image source={catPicIndex === -1 ? imageSource : accessory_images[catPicIndex]} style={wkrp_styles.image}/>
+                    <Pressable
+                        style={{backgroundColor: '#3F6C51', padding: 5, borderRadius: 5}}
+                        onPress={() => {setCustomizeModalVisible(true)}}
+                        >
+                        <Text style={{color: 'white'}}>Customize</Text>
+                    </Pressable>
+                </View>
+                <View style={wkrp_styles.graphWrapper}>
+                    <Svg height='200' width='200' viewBox='0 0 180 180'>
+                        <G rotation={-90} originX='90' originY='90'>
+                            <Circle
+                                // how it becomes a donut
+                                cx={'50%'}
+                                cy={'50%'}
+                                r={graphRadius}
+                                stroke='#F1F6F9'
+                                fill='transparent'
+                                strokeWidth='25'
+                            />
+                            <Circle
+                                cx={'50%'}
+                                cy={'50%'}
+                                r={graphRadius}
+                                stroke='#9DE5F5'
+                                fill='transparent'
+                                strokeWidth='25'
+                                strokeDasharray={graphCircumference}
+                                strokeDashoffset={strokeDashoffset}
+                                strokeLinecap='round'
+                            />
+                        </G>
+                    </Svg>
+                    <View style={[{position: 'absolute'}, styles.valign_items]}>
+                        <Text style={wkrp_styles.graphPercentText}>{percentage}%</Text>
+                        <Text style={wkrp_styles.graphSmallText}>of your food was</Text>
+                        <Text style={wkrp_styles.graphSmallText}>NOT wasted</Text>
+                        <Text style={wkrp_styles.graphSmallText}>this week</Text>
                     </View>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'top', justifyContent: 'space-evenly', paddingTop: 5}}>
@@ -134,6 +257,7 @@ const WeeklyReportScreen = () => {
                     </View>
                 </View>
             </View>
+            {customizeModal()}
         </View>
     );
 };
@@ -148,24 +272,35 @@ const wkrp_styles = StyleSheet.create({
         paddingTop: 60, 
         padding: 20,
     },
-    viewImage: {
-        maxWidth: '100%',
-        maxHeight: '100%'
-    },
     image: {
         width: 132,
         height: 132,
+        margin: 10, 
     },
 
     status_block: {
         width: 316,
-        height: 316,
+        height: 650,
         backgroundColor: '#FFFFFF',
         borderRadius: 15,
         borderWidth: 1,
         borderColor: '#000000',
-        paddingVertical: 15
+        paddingVertical: 15,
+        justifyContent: 'space-evenly'
     },
+
+    customize_modal: {
+        backgroundColor: '#fff', 
+        width: '80%', // fixed width
+        height: '50%', // fixed height
+        margin: 50,
+        padding: 20, 
+        borderRadius: 10, 
+        alignSelf: 'center',
+        justifyContent: 'space-between', 
+        borderWidth: 1, 
+        borderColor: '#000',
+    }, 
 
     graphWrapper: {
         alignItems: 'center',

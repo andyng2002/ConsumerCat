@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, View, Text, StyleSheet, Button, TouchableOpacity,TextInput, Image } from 'react-native';
-// import { styles } from '../Styles';
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Ionicons } from '@expo/vector-icons';
 import { db } from '../firebaseConfig';
