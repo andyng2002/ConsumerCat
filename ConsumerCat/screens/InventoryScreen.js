@@ -84,10 +84,8 @@ const InventoryScreen = ({ route }) => {
                          }
                     });
 
-                    console.log(`daysToExpiration: ${itemExpiration}`);
                     const expirationDate = addDays(new Date(), itemExpiration);
                     const expirationDateFormatted = format(expirationDate, 'MM/dd/yyyy');
-                    console.log(`expirationDate: ${expirationDateFormatted}`);
                     const boughtDateFormatted = format(new Date(), 'MM/dd/yyyy');
 
                     return itemRef.set({
@@ -325,8 +323,6 @@ const InventoryScreen = ({ route }) => {
             const userDoc = await db.collection('users').doc(user.uid).collection('items')
             var queryField = sortBy.split('-')[1]
             var queryOrder = sortBy.split('-')[0]
-            console.log(queryField)
-            console.log(queryOrder)
             const query = userDoc.orderBy(queryField, queryOrder)
 
             query.get().then((snapshot) => {
@@ -543,12 +539,14 @@ const inv_styles = StyleSheet.create({
         alignItems: 'space-between',
         justifyContent: 'center',
     },
+
     manual_header_container: {
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
         marginBottom: 15,
     },
+    
     manual_buttons: {
         flex: 1,
         alignItems: 'center',
