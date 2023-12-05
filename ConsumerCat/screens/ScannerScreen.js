@@ -247,7 +247,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#E3FDE0',
-        padding: 20
+        padding: 20,
+        justifyContent: 'center',
     },
     addProductButton: {
         backgroundColor: 'green',
@@ -275,10 +276,11 @@ const styles = StyleSheet.create({
         fontSize: 12
     },
     scannerContainer: {
-        flex: 1,
+        flex: 0,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'transparent',
+        height: 250,
     },
     overlay: {
         position: 'absolute',

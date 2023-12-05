@@ -80,14 +80,14 @@ const WeeklyReportScreen = () => {
             <Text style={styles.header}>Weekly Report</Text>
             <View style={styles.horizontal_line} />
             <View style={wkrp_styles.status_block}>
-                <View style={styles.hz_align_items}>
+                <View style={styles.valign_items}>
                     <View style={styles.valign_items}>
-                        <Text>Your cat is...</Text>
-                        <Text style={{fontWeight: 'bold'}}>{cat_status}</Text>
+                        <Text style = {{fontSize: 20}}>Your cat is...</Text>
+                        <Text style={{fontWeight: 'bold', fontSize: 50}}>{cat_status}</Text>
                         <Image source={imageSource} style={wkrp_styles.image}/>
                     </View>
                     <View style={wkrp_styles.graphWrapper}>
-                        <Svg height='160' width='160' viewBox='0 0 180 180'>
+                        <Svg height='250' width='250' viewBox='0 0 180 180'>
                             <G rotation={-90} originX='90' originY='90'>
                                 <Circle
                                     // how it becomes a donut
@@ -153,13 +153,13 @@ const wkrp_styles = StyleSheet.create({
         maxHeight: '100%'
     },
     image: {
-        width: 132,
-        height: 132,
+        width: 180,
+        height: 180,
     },
 
     status_block: {
         width: 316,
-        height: 316,
+        flex: 1,
         backgroundColor: '#FFFFFF',
         borderRadius: 15,
         borderWidth: 1,
