@@ -94,9 +94,6 @@ const ScannerScreen = ({ route }) => {
             }
         }
     };
-    
-    
-    
 
     useEffect(() => {
         const fetchProductDetails = async () => {

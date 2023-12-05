@@ -3,12 +3,13 @@ import { Alert, FlatList, View, ScrollView, Text, StyleSheet, Keyboard, Touchabl
 import { useIsFocused } from '@react-navigation/native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { format, addDays, differenceInCalendarDays} from 'date-fns';
+import RadioForm from 'react-native-simple-radio-button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { styles } from '../Styles';
 import Item from '../components/Item';
 import { ItemContext } from '../hooks/ItemContext';
 import { auth, db } from '../firebaseConfig';
-
 import { productDictionary } from '../ProductInfo/productDictionary.js';
  
 
@@ -21,8 +22,9 @@ const InventoryScreen = ({ route }) => {
     const { uid } = route.params;
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
+    const [sortModalVisible, setSortModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
-    const [sortBy, setSortBy] = useState('asc');
+    const [sortBy, setSortBy] = useState('asc-daysLeft-0');
     const isFocused = useIsFocused();
 
     const changeQuantity = () => {
@@ -271,12 +273,61 @@ const InventoryScreen = ({ route }) => {
         )
     }
 
+    const options = [
+        { label: 'Earliest Expiration', value: 'asc-daysLeft-0'},
+        { label: 'Furthest Expiration', value: 'desc-daysLeft-1'},
+        { label: 'Name (A-Z)', value: 'asc-itemName-2'},
+        { label: 'Name (Z-A)', value: 'desc-itemName-3'}
+    ]
+
+    const SortByModal = () => {
+        return (
+            <Modal
+                animationType="slide"
+                visible={sortModalVisible}
+                transparent={true}
+                onRequestClose={() => {
+                    setSortModalVisible(!sortModalVisible);
+                }}>
+                <View style={{ backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center' }}>
+                    <View style={inv_styles.manual_screen}>
+                        <View style={inv_styles.manual_header_container}>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold'}}>Sort By: {options[parseInt(sortBy.split('-')[2])].label}</Text>
+                        </View>
+                        <RadioForm
+                            radio_props={options}
+                            initial={-1} //initial value of this group
+                            onPress={async (value) => {
+                                setSortBy(value);
+                                try {
+                                    await AsyncStorage.setItem('sortBy', value);
+                                  } catch (error) {
+                                    console.error('Error saving sortBy value to AsyncStorage:', error);
+                                  }
+                            }} //if the user changes options, set the new value
+                        />
+                        <View style={{alignItems: 'center', justifyContent: 'center', backgroundColor: '#3F6C51', paddingVertical: 8, borderRadius: 15}}>
+                            <Pressable
+                                onPress={() => setSortModalVisible(false)}>
+                                <Text style={{fontSize: 18, fontWeight: '500', color: 'white',}}>Close</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
     const fetchInventoryItems = async () => {
       try {
           const user = auth.currentUser;
           if (user) {
             const userDoc = await db.collection('users').doc(user.uid).collection('items')
-            const query = userDoc.orderBy('daysLeft', sortBy)
+            var queryField = sortBy.split('-')[1]
+            var queryOrder = sortBy.split('-')[0]
+            console.log(queryField)
+            console.log(queryOrder)
+            const query = userDoc.orderBy(queryField, queryOrder)
 
             query.get().then((snapshot) => {
                 const inventoryData = snapshot.docs.map((doc) => doc.data());
@@ -299,12 +350,9 @@ const InventoryScreen = ({ route }) => {
                             console.log("not here")
                         }
                     })
-                    console.log(item);
-                })
+                 })
                 // populate inventory list
                 setItemList(inventoryData);
-                console.log(inventoryData);
-
             })
           }
       } catch (error) {
@@ -328,7 +376,18 @@ const InventoryScreen = ({ route }) => {
     }
 
     useEffect(() => {
-        if (isFocused) {
+        if (isFocused || sortBy) {
+            const loadSelectedValue = async () => {
+                try {
+                  const value = await AsyncStorage.getItem('sortBy');
+                  if (value !== null) {
+                    setSortBy(value);
+                  }
+                } catch (error) {
+                  console.error('Error loading sortBy value from AsyncStorage:', error);
+                }
+            }
+            loadSelectedValue();
             fetchInventoryItems();
         }   
         const fetchUserData = async () => {
@@ -345,7 +404,7 @@ const InventoryScreen = ({ route }) => {
           };
       
         fetchUserData();
-    }, [isFocused]);
+    }, [isFocused, sortBy]);
   
 
     return (
@@ -362,7 +421,11 @@ const InventoryScreen = ({ route }) => {
                     <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
                     <Pressable 
                         style={[{marginRight: 10, backgroundColor: '#D9D9D9'}, inv_styles.manual_btn_background]}
-                        onPress={() => {setSortBy((sortBy === 'asc') ? 'desc' : 'asc'); fetchInventoryItems();}}>
+                        onPress={() => {
+                            setSortModalVisible(true);
+                            // setSortBy((sortBy === 'asc') ? 'desc' : 'asc');
+                            // fetchInventoryItems();
+                            }}>
                         <Text style={inv_styles.sort_by_btn}>Sort By</Text>
                     </Pressable>
                     <Pressable 
@@ -419,13 +482,13 @@ const InventoryScreen = ({ route }) => {
                 </TouchableOpacity> */}
                 {ManualAddModal()}
                 {EditModal()}
+                {SortByModal()}
             </View>
         </TouchableWithoutFeedback>
     );
     
     };
 
- 
 // styles specific to Inventory Screen
 const inv_styles = StyleSheet.create({
     container: {
