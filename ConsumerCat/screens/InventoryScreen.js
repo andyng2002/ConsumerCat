@@ -18,8 +18,7 @@ const InventoryScreen = ({ route }) => {
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
     const [ itemName, setItemName ] = useState('');
     const [ itemQty, setItemQty ] = useState('');
-    const [ itemDaysLeft, setItemDaysLeft ] = useState('');
-    const { uid } = route.params;
+     const { uid } = route.params;
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [sortModalVisible, setSortModalVisible] = useState(false);
@@ -47,7 +46,6 @@ const InventoryScreen = ({ route }) => {
             .catch((error) => {
                 console.error("Error adding or updating document: ", error);
             });
-    
             setItemName(null);
             setItemQty(null);
         } else {
@@ -387,20 +385,18 @@ const InventoryScreen = ({ route }) => {
         }
 
     useEffect(() => {
-        if (isFocused || sortBy) {
-            const loadSelectedValue = async () => {
-                try {
-                  const value = await AsyncStorage.getItem('sortBy');
-                  if (value !== null) {
-                    setSortBy(value);
-                  }
-                } catch (error) {
-                  console.error('Error loading sortBy value from AsyncStorage:', error);
-                }
+        const loadSelectedValue = async () => {
+            try {
+              const value = await AsyncStorage.getItem('sortBy');
+              if (value !== null) {
+                setSortBy(value);
+              }
+            } catch (error) {
+              console.error('Error loading sortBy value from AsyncStorage:', error);
             }
-            loadSelectedValue();
-            fetchInventoryItems();
-        }   
+        }
+        loadSelectedValue();
+        fetchInventoryItems();
         const fetchUserData = async () => {
             if (auth.currentUser) {
               const userDocRef = db.collection('users').doc(uid);
@@ -417,7 +413,7 @@ const InventoryScreen = ({ route }) => {
           };
       
         fetchUserData();
-    }, [isFocused, sortBy]);
+    }, [isFocused, sortBy, manualAddModalVisible, editModalVisible, sortModalVisible]);
   
 
     return (
@@ -437,8 +433,6 @@ const InventoryScreen = ({ route }) => {
                         style={[{marginRight: 10, backgroundColor: '#D9D9D9'}, inv_styles.manual_btn_background]}
                         onPress={() => {
                             setSortModalVisible(true);
-                            // setSortBy((sortBy === 'asc') ? 'desc' : 'asc');
-                            // fetchInventoryItems();
                             }}>
                         <Text style={inv_styles.sort_by_btn}>Sort By</Text>
                     </Pressable>

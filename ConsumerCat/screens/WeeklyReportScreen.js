@@ -84,8 +84,7 @@ const WeeklyReportScreen = () => {
       };
 
     const handleCustomizationPurchase = async (index) => {
-        // check if they have enough coins and if they do, do this:
-        var i = index;
+         var i = index;
         if (cat_status === 'SAD') {
             i += 1;
         }
@@ -156,7 +155,6 @@ const WeeklyReportScreen = () => {
                         <View style={{borderWidth: 1, borderColor: '#000', height: 80, borderRadius: 4, alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
                             <Pressable
                                 onPress={() => {
-                                    console.log('took default')
                                     handleCustomizationPurchase(0)
                                 }}>
                                 <View style={styles.valign_items}>
@@ -166,7 +164,6 @@ const WeeklyReportScreen = () => {
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    console.log('took pink and blue bow!')
                                     handleCustomizationPurchase(2)
                                 }}>
                                 <View style={styles.valign_items}>
@@ -176,7 +173,6 @@ const WeeklyReportScreen = () => {
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    console.log('took blue hat!')
                                     handleCustomizationPurchase(4)
                                 }}>
                                 <View style={styles.valign_items}>
@@ -186,7 +182,6 @@ const WeeklyReportScreen = () => {
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    console.log('took circle glasses!')
                                     handleCustomizationPurchase(6)
                                 }}>
                                 <View style={styles.valign_items}>
@@ -223,7 +218,7 @@ const WeeklyReportScreen = () => {
             }
             loadCatPic();
         }
-    }, [isFocused, ])
+    }, [isFocused])
 
     
     return (
