@@ -418,39 +418,34 @@ const InventoryScreen = ({ route }) => {
     };
 
     const deleteItem = (itemName) => {
-        const itemUPC = productDictionary[itemName].UPC;
     
-        db.collection('users')
-        .doc(uid)
-        .collection('items')
-        .doc(itemUPC)
-        .delete()
-        .then(() => {
-            const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
-            setItemList(updatedItemList);
-    
-            // Prepare the document reference for the item delete logs
-            const currentDate = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD' format
-            const itemDeleteLogRef = db.collection('eventLogs').doc('itemDelete').collection('date').doc(currentDate);
-    
-            // Log the item delete event to Firestore
-            itemDeleteLogRef.set({
-                [`${new Date().getTime()}`]: { // Unique identifier for each log entry
-                    itemName: itemName,
-                    itemUPC: itemUPC,
-                    userId: uid
-                }
-            }, { merge: true })
-            .then(() => {
-                console.log('Item delete event logged to Firestore');
-            })
-            .catch((error) => {
-                console.error('Error logging item delete event to Firestore:', error);
+        const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[itemName].UPC);
+
+        itemRef.get().then((doc) => {
+            if (doc.exists) {
+                const deletedQuantity = doc.data().quantity || 0;
+                const updatedPoints = parseInt(points) + parseInt(deletedQuantity);
+
+                // Update points in the Firebase database
+                db.collection('users').doc(uid).update({
+                    points: updatedPoints,
+                });
+
+                // Delete the item
+                itemRef.delete().then(() => {
+                    const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
+                    setItemList(updatedItemList);
+                    setPoints(updatedPoints);
+                }).catch((error) => {
+                    console.error('Error deleting item from Firebase:', error);
+                });
+            } else {
+                console.log("Item not found in the database");
+            }
+            }).catch((error) => {
+                console.error('Error getting item from Firebase:', error);
             });
-        })
-        .catch((error) => {
-            console.error('Error deleting item from Firebase:', error);
-        });
+        
     };
     
 
