@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import { auth } from '../firebaseConfig';
+import analytics from '@react-native-firebase/analytics';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -10,12 +11,17 @@ const LoginScreen = ({ navigation }) => {
     auth.signInWithEmailAndPassword(email, password)
       .then((user) => {
         const uid = user.user.uid;
+  
+        // Log the login event
+        analytics().logEvent('login', { method: 'email' });
+  
         navigation.navigate('TabContainer', { uid: uid });
       })
       .catch((error) => {
         Alert.alert('Login Failed', error.message);
       });
   };
+  
   
   return (
     <View style={styles.container}>
