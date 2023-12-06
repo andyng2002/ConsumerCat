@@ -59,17 +59,18 @@ const InventoryScreen = ({ route }) => {
             const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[itemName].UPC);
     
             itemRef.get().then(async (doc) => {
+                let action;
                 if (doc.exists) {
-                    console.log("here")
+                    console.log("here");
                     // If item already exists, update the quantity
                     const currentQuantity = doc.data().quantity || 0;
-                    return itemRef.update({
-                        quantity: currentQuantity + quantity  // Adding to existing quantity
+                    action = itemRef.update({
+                        quantity: currentQuantity + parseInt(itemQty)  // Adding to existing quantity
                     });
                 } else {
                     // If item doesn't exist, create a new entry
                     var itemExpiration = 7;
-
+    
                     const itemQuerySnapshot = await db.collection('productDatabase')
                         .where('fullName', '>=', itemName)
                         .where('fullName', '<=', itemName + '\uf8ff')
@@ -79,38 +80,53 @@ const InventoryScreen = ({ route }) => {
                         const data = doc.data();
                         if (data) {
                             // if item is in productDatabase, get its expiresInDays
-                            // console.log(parseInt(data.expiresInDays));
                             itemExpiration = parseInt(data.expiresInDays);
                          }
                     });
-
+    
                     const expirationDate = addDays(new Date(), itemExpiration);
                     const expirationDateFormatted = format(expirationDate, 'MM/dd/yyyy');
                     const boughtDateFormatted = format(new Date(), 'MM/dd/yyyy');
-
-                    return itemRef.set({
+    
+                    action = itemRef.set({
                         itemName: itemName,
-                        quantity: itemQty,
+                        quantity: parseInt(itemQty),
                         imageURL: productDictionary[itemName].image,
                         bought: boughtDateFormatted,
                         expirationDate: expirationDateFormatted,
                         daysLeft: 12,
                     });
                 }
+                return action;
             })
             .then(() => {
+                // Log the inventory add event to Firestore
+                const eventLogRef = db.collection('eventLogs').doc('inventoryAdd').collection('logs');
+                eventLogRef.add({
+                    timestamp: new Date(),
+                    itemName: itemName,
+                    quantityAdded: parseInt(itemQty),
+                    userId: uid
+                })
+                .then(() => {
+                    console.log('Inventory add event logged to Firestore');
+                })
+                .catch((error) => {
+                    console.error('Error logging inventory add event to Firestore:', error);
+                });
+    
                 Alert.alert('Success', 'Product added to inventory!');
+                setItemName('');
+                setItemQty('');  // Resetting the qty
             })
             .catch((error) => {
                 console.error("Error adding or updating document: ", error);
             });
-    
-            setItemName(null);
-            setItemQty(null);  // Resetting the qty
         } else {
             Alert.alert('Error', 'Could not add product to inventory.');
         }
     };
+    
 
     const handleSearch = async (text) => {
         setItemName(text);
@@ -357,19 +373,37 @@ const InventoryScreen = ({ route }) => {
     };
 
     const deleteItem = (itemName) => {
+        const itemUPC = productDictionary[itemName].UPC;
+    
         db.collection('users')
         .doc(uid)
         .collection('items')
-        .doc(productDictionary[itemName].UPC)
+        .doc(itemUPC)
         .delete()
         .then(() => {
-          const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
-          setItemList(updatedItemList);
-         })
+            const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
+            setItemList(updatedItemList);
+    
+            // Log the item deletion event to Firestore
+            const eventLogRef = db.collection('eventLogs').doc('itemDelete').collection('logs');
+            eventLogRef.add({
+                timestamp: new Date(),
+                itemName: itemName,
+                itemUPC: itemUPC,
+                userId: uid
+            })
+            .then(() => {
+                console.log('Item delete event logged to Firestore');
+            })
+            .catch((error) => {
+                console.error('Error logging item delete event to Firestore:', error);
+            });
+        })
         .catch((error) => {
-          console.error('Error deleting item from Firebase:', error);
+            console.error('Error deleting item from Firebase:', error);
         });
-    }
+    };
+    
 
     useEffect(() => {
         if (isFocused || sortBy) {

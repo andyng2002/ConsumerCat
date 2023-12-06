@@ -64,6 +64,20 @@ const ScannerScreen = ({ route }) => {
             setScannedUPC(data);
             console.log(data);
     
+            // Log the barcode scan event to Firestore
+            const eventLogRef = db.collection('eventLogs').doc('barcodeScan').collection('logs');
+            eventLogRef.add({
+                timestamp: new Date(),
+                scannedUPC: data,
+                userId: uid
+            })
+            .then(() => {
+                console.log('Barcode scan event logged to Firestore');
+            })
+            .catch((error) => {
+                console.error('Error logging barcode scan event to Firestore:', error);
+            });
+    
             // Fetch the product name here
             const productRef = db.collection('productDatabase').doc(data);
             const doc = await productRef.get();
@@ -93,6 +107,7 @@ const ScannerScreen = ({ route }) => {
             }
         }
     };
+    
 
     useEffect(() => {
         const fetchProductDetails = async () => {

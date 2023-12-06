@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
-import { auth } from '../firebaseConfig';
-import analytics from '@react-native-firebase/analytics';
+import { auth, db } from '../firebaseConfig';
+import firebase from 'firebase/app';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -9,19 +9,35 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     auth.signInWithEmailAndPassword(email, password)
-      .then((user) => {
-        const uid = user.user.uid;
-  
-        // Log the login event
-        analytics().logEvent('login', { method: 'email' });
-  
+      .then((userCredential) => {
+        const uid = userCredential.user.uid;
+
+        // Prepare the document reference for the event log
+        const eventLogRef = db.collection('eventLogs').doc('login').collection('logs');
+
+        // Prepare the data to log
+        const eventData = {
+          timestamp: new Date(), // Using JavaScript's Date object for timestamp
+          method: 'email',
+          userEmail: email, // Be mindful of user privacy
+          userId: uid
+        };
+
+        // Log the login event to Firestore
+        eventLogRef.add(eventData)
+          .then(() => {
+            console.log('Login event logged to Firestore');
+          })
+          .catch((error) => {
+            console.error('Error logging event to Firestore:', error);
+          });
+
         navigation.navigate('TabContainer', { uid: uid });
       })
       .catch((error) => {
         Alert.alert('Login Failed', error.message);
       });
   };
-  
   
   return (
     <View style={styles.container}>
