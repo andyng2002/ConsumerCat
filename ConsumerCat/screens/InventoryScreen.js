@@ -61,7 +61,6 @@ const InventoryScreen = ({ route }) => {
             itemRef.get().then(async (doc) => {
                 let action;
                 if (doc.exists) {
-                    console.log("here");
                     // If item already exists, update the quantity
                     const currentQuantity = doc.data().quantity || 0;
                     action = itemRef.update({
@@ -100,14 +99,18 @@ const InventoryScreen = ({ route }) => {
                 return action;
             })
             .then(() => {
+                // Prepare the document reference for the inventory add logs
+                const currentDate = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD' format
+                const inventoryAddLogRef = db.collection('eventLogs').doc('itemAdd').collection('date').doc(currentDate);
+    
                 // Log the inventory add event to Firestore
-                const eventLogRef = db.collection('eventLogs').doc('inventoryAdd').collection('logs');
-                eventLogRef.add({
-                    timestamp: new Date(),
-                    itemName: itemName,
-                    quantityAdded: parseInt(itemQty),
-                    userId: uid
-                })
+                inventoryAddLogRef.set({
+                    [`${new Date().getTime()}`]: { // Unique identifier for each log entry
+                        itemName: itemName,
+                        quantityAdded: parseInt(itemQty),
+                        userId: uid
+                    }
+                }, { merge: true })
                 .then(() => {
                     console.log('Inventory add event logged to Firestore');
                 })
@@ -126,6 +129,7 @@ const InventoryScreen = ({ route }) => {
             Alert.alert('Error', 'Could not add product to inventory.');
         }
     };
+    
     
 
     const handleSearch = async (text) => {
@@ -384,14 +388,18 @@ const InventoryScreen = ({ route }) => {
             const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
             setItemList(updatedItemList);
     
-            // Log the item deletion event to Firestore
-            const eventLogRef = db.collection('eventLogs').doc('itemDelete').collection('logs');
-            eventLogRef.add({
-                timestamp: new Date(),
-                itemName: itemName,
-                itemUPC: itemUPC,
-                userId: uid
-            })
+            // Prepare the document reference for the item delete logs
+            const currentDate = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD' format
+            const itemDeleteLogRef = db.collection('eventLogs').doc('itemDelete').collection('date').doc(currentDate);
+    
+            // Log the item delete event to Firestore
+            itemDeleteLogRef.set({
+                [`${new Date().getTime()}`]: { // Unique identifier for each log entry
+                    itemName: itemName,
+                    itemUPC: itemUPC,
+                    userId: uid
+                }
+            }, { merge: true })
             .then(() => {
                 console.log('Item delete event logged to Firestore');
             })
@@ -403,6 +411,7 @@ const InventoryScreen = ({ route }) => {
             console.error('Error deleting item from Firebase:', error);
         });
     };
+    
     
 
     useEffect(() => {

@@ -64,13 +64,17 @@ const ScannerScreen = ({ route }) => {
             setScannedUPC(data);
             console.log(data);
     
+            // Prepare the document reference for the barcode scan logs
+            const currentDate = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD' format
+            const barcodeScanLogRef = db.collection('eventLogs').doc('barcodeScan').collection('date').doc(currentDate);
+    
             // Log the barcode scan event to Firestore
-            const eventLogRef = db.collection('eventLogs').doc('barcodeScan').collection('logs');
-            eventLogRef.add({
-                timestamp: new Date(),
-                scannedUPC: data,
-                userId: uid
-            })
+            barcodeScanLogRef.set({
+                [`${new Date().getTime()}`]: { // Unique identifier for each log entry
+                    scannedUPC: data,
+                    userId: uid
+                }
+            }, { merge: true })
             .then(() => {
                 console.log('Barcode scan event logged to Firestore');
             })
@@ -108,6 +112,7 @@ const ScannerScreen = ({ route }) => {
         }
     };
     
+    
 
     useEffect(() => {
         const fetchProductDetails = async () => {
@@ -142,7 +147,7 @@ const ScannerScreen = ({ route }) => {
         const expirationDate = addDays(new Date(), itemExpiration);
         const expirationDateFormatted = format(expirationDate, 'MM/dd/yyyy');
         const boughtDateFormatted = format(new Date(), 'MM/dd/yyyy');
-
+    
         if (scannedItem && uid && scannedUPC) {  // Make sure all the required data is available
             // Use UPC as the document ID
             const itemRef = db.collection('users').doc(uid).collection('items').doc(scannedUPC);
@@ -167,6 +172,25 @@ const ScannerScreen = ({ route }) => {
                 }
             })
             .then(() => {
+                // Prepare the document reference for the inventory add logs
+                const currentDate = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD' format
+                const inventoryAddLogRef = db.collection('eventLogs').doc('scannedItemAdd').collection('date').doc(currentDate);
+    
+                // Log the inventory add event to Firestore
+                inventoryAddLogRef.set({
+                    [`${new Date().getTime()}`]: { // Unique identifier for each log entry
+                        itemName: scannedItem.brand + " " + scannedItem.productName,
+                        quantityAdded: quantity,
+                        userId: uid
+                    }
+                }, { merge: true })
+                .then(() => {
+                    console.log('Inventory add event logged to Firestore');
+                })
+                .catch((error) => {
+                    console.error('Error logging inventory add event to Firestore:', error);
+                });
+    
                 Alert.alert('Success', 'Product added to inventory!');
             })
             .catch((error) => {
@@ -179,6 +203,7 @@ const ScannerScreen = ({ route }) => {
             Alert.alert('Error', 'Could not add product to inventory.');
         }
     };
+    
     
     
 
