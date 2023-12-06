@@ -22,6 +22,7 @@ const InventoryScreen = ({ route }) => {
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [sortModalVisible, setSortModalVisible] = useState(false);
+    const [purchaseModalVisible, setPurchaseModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const [sortBy, setSortBy] = useState('asc-daysLeft-0');
     const [points, setPoints] = useState(0);
@@ -221,6 +222,61 @@ const InventoryScreen = ({ route }) => {
                             <View style={inv_styles.manual_buttons}>
                                 <Pressable onPress={addToInventory}>
                                     <Text style={[inv_styles.manual_btn_text, {fontSize: 18, fontWeight: '500'}]}>Add</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
+    const PurchaseModal = () => {
+        return (
+            <Modal
+                animationType="slide"
+                visible={purchaseModalVisible}
+                transparent={true}
+                onRequestClose={() => {
+                setPurchaseModalVisible(!purchaseModalVisible);
+            }}>
+                <View style={{ backgroundColor: '#0000000aa', flex: 1, justifyContent: 'center' }}>
+                    <View style={inv_styles.manual_screen}>
+                        <View style={inv_styles.manual_header_container}>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold'}}>Enter Card Information</Text>                  
+                        </View>
+                        <View style={{flexDirection: 'row', alignItems: 'center',}}>
+                            <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Card Number: </Text>
+                            <TextInput
+                                style={[{width: 150, height: 30}, styles.input]}
+                                keyboardType='numeric'
+                            />
+                        </View>
+                        <View style={{flexDirection: 'row', alignItems: 'center',}}>
+                            <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Exp Date: </Text>
+                            <TextInput
+                                style={[{width: 50, height: 30}, styles.input]}
+                                keyboardType='numeric'
+                            />
+                            <Text style={{justifyContent: 'center', verticalAlign: 'middle', marginLeft: 20}}>CVV: </Text>
+                            <TextInput
+                                style={[{width: 50, height: 30}, styles.input]}
+                                keyboardType='numeric'
+                            />
+                        </View>
+                        <View style={inv_styles.manual_button}>
+                            <Pressable>
+                                <Text style={[inv_styles.manual_btn_text, {fontSize: 18, fontWeight: '500'}]}>Purchase</Text>
+                            </Pressable>
+                        </View>
+    
+                        <View style={inv_styles.manual_buttons_container}>
+                            <View style={inv_styles.manual_buttons}> 
+                                <Pressable
+                                    onPress={() => {
+                                        setPurchaseModalVisible(false)
+                                    }}>
+                                    <Text style={[inv_styles.manual_btn_text, {fontSize: 18, fontWeight: '500'}]}>Cancel</Text>
                                 </Pressable>
                             </View>
                         </View>
@@ -439,7 +495,14 @@ const InventoryScreen = ({ route }) => {
                         <Text style={inv_styles.hello_text}>Hello!</Text>
                         <Text style={inv_styles.display_name}>{userName}</Text>
                     </View>
-                    <Text style={inv_styles.points}>Coins: {points}</Text>
+                    <View>
+                        <Text style={inv_styles.points}>Coins: {points}</Text>
+                        <Pressable style={{borderRadius: 10, marginLeft: 110, height: 20}}
+                            onPress={() => {setPurchaseModalVisible(true)}}
+                        >
+                            <Text style={{fontSize: 8, fontWeight: 'bold', textAlign: 'center'}}>Click To Purchase Coins</Text>
+                        </Pressable>
+                    </View>
                 </View>
                 <View style={styles.hz_align_items}>
                     <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
@@ -505,6 +568,7 @@ const InventoryScreen = ({ route }) => {
                 {ManualAddModal()}
                 {EditModal()}
                 {SortByModal()}
+                {PurchaseModal()}
             </View>
         </TouchableWithoutFeedback>
     );
@@ -580,6 +644,17 @@ const inv_styles = StyleSheet.create({
         backgroundColor: '#3F6C51',
         paddingTop: 10,
         paddingBottom: 10,
+        marginLeft: 15,
+        marginRight: 15,
+        borderRadius: 10,
+    },
+
+    manual_button: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#3F6C51',
+        maxHeight: 40,
         marginLeft: 15,
         marginRight: 15,
         borderRadius: 10,

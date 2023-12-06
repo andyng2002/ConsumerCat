@@ -106,6 +106,11 @@ const WeeklyReportScreen = () => {
                                 },
                             ]
                         );
+                        if (cat_status === 'SAD') {
+                            setCatPicIndex(1)
+                        } else {
+                            setCatPicIndex(0)
+                        }
                     } else {
                         setCatPicIndex(i);
                         if (index == 4) {
