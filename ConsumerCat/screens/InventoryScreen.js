@@ -25,6 +25,7 @@ const InventoryScreen = ({ route }) => {
     const [sortModalVisible, setSortModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const [sortBy, setSortBy] = useState('asc-daysLeft-0');
+    const [points, setPoints] = useState(0);
     const isFocused = useIsFocused();
 
     const changeQuantity = () => {
@@ -238,20 +239,6 @@ const InventoryScreen = ({ route }) => {
                                 </Pressable>
                             </View>
                         </View>
-                                        
-                        {/* <View style={{flexDirection: 'row', alignItems: 'center',}}>
-                            <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Days Left: </Text>
-                            <TextInput
-                                style={[{width: 30, height: 30}, styles.input]}
-                                onChangeText={ qty => setItemDaysLeft(qty)}
-                                keyboardType='numeric'
-                            />
-                            <View style={inv_styles.manual_buttons}>
-                                <Pressable onPress={()=>{changeDaysLeft()}}>
-                                    <Text style={[inv_styles, {fontSize: 18, fontWeight: '500', color: 'white'}]}>Add</Text>
-                                </Pressable>
-                            </View>
-                        </View> */}
     
                         <View style={inv_styles.manual_buttons_container}>
                             <View style={inv_styles.manual_buttons}> 
@@ -357,19 +344,47 @@ const InventoryScreen = ({ route }) => {
     };
 
     const deleteItem = (itemName) => {
-        db.collection('users')
-        .doc(uid)
-        .collection('items')
-        .doc(productDictionary[itemName].UPC)
-        .delete()
-        .then(() => {
-          const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
-          setItemList(updatedItemList);
-         })
-        .catch((error) => {
-          console.error('Error deleting item from Firebase:', error);
-        });
-    }
+        // db.collection('users')
+        // .doc(uid)
+        // .collection('items')
+        // .doc(productDictionary[itemName].UPC)
+        // .delete()
+        // .then(() => {
+        //   const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
+        //   setItemList(updatedItemList);
+        //   let temp = points + 1
+        //   setPoints(temp)
+        //  })
+        // .catch((error) => {
+        //   console.error('Error deleting item from Firebase:', error);
+        // });
+        const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[itemName].UPC);
+
+        itemRef.get().then((doc) => {
+            if (doc.exists) {
+                const deletedQuantity = doc.data().quantity || 0;
+                const updatedPoints = parseInt(points) + parseInt(deletedQuantity);
+                
+                // Update points in the Firebase database
+                db.collection('users').doc(uid).update({
+                    points: updatedPoints,
+                });
+
+                // Delete the item
+                itemRef.delete().then(() => {
+                    const updatedItemList = itemList.filter((item) => item.itemName !== itemName);
+                    setItemList(updatedItemList);
+                    setPoints(updatedPoints);
+                }).catch((error) => {
+                    console.error('Error deleting item from Firebase:', error);
+                });
+            } else {
+                console.log("Item not found in the database");
+            }
+            }).catch((error) => {
+                console.error('Error getting item from Firebase:', error);
+            });
+        }
 
     useEffect(() => {
         if (isFocused || sortBy) {
@@ -392,6 +407,8 @@ const InventoryScreen = ({ route }) => {
               userDocRef.get().then(async (doc) => {
                 if (doc.exists) {
                     setUserName(doc.data().firstName + ' ' + doc.data().lastName);
+                    const userPoints = doc.data().points || 0;
+                    setPoints(userPoints);
                 } else {
                     console.log('No such document!');
                   }
@@ -412,6 +429,7 @@ const InventoryScreen = ({ route }) => {
                         <Text style={inv_styles.hello_text}>Hello!</Text>
                         <Text style={inv_styles.display_name}>{userName}</Text>
                     </View>
+                    <Text style={inv_styles.points}>Points: {points}</Text>
                 </View>
                 <View style={styles.hz_align_items}>
                     <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
@@ -573,35 +591,13 @@ const inv_styles = StyleSheet.create({
         margin: 11,
         paddingBottom: 2, 
         paddingHorizontal: 5,
+    },
+
+    points: {
+        paddingLeft: 120,
+        fontSize: 22,
+        fontWeight: "bold",
     }
 });
 
 export default InventoryScreen;
-
-
-const changeDaysLeft = () => {
-    if (itemName && itemDaysLeft) {
-        const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[itemName].UPC);
-
-        itemRef.get().then(async (doc) => {
-            if (doc.exists) {
-                return itemRef.update({
-                    daysLeft: parseInt(itemDaysLeft)
-                });
-            } else {
-                console.log("not here")
-            }
-        })
-        .then(() => {
-            Alert.alert('Success', 'Quantity updated');
-        })
-        .catch((error) => {
-            console.error("Error adding or updating document: ", error);
-        });
-
-        setItemName(null);
-        setItemQty(null);
-    } else {
-        Alert.alert('Error', 'Could not edit');
-    }
-}
