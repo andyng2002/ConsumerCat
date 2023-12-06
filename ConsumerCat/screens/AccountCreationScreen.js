@@ -8,8 +8,8 @@ const AccountCreationScreen = ({ navigation }) => {
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [email, setEmail] = useState('');
-  // var db = firebase.firestore();
   const [password, setPassword] = useState('');
+  const [points, setPoints] = useState(0);
 
   const inputStyle = {
     width: 300,
@@ -33,6 +33,7 @@ const AccountCreationScreen = ({ navigation }) => {
           firstName,
           lastName,
           email,
+          points,
         })
         navigation.navigate('Login')
     })

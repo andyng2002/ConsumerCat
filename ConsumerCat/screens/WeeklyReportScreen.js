@@ -84,28 +84,59 @@ const WeeklyReportScreen = () => {
       };
 
     const handleCustomizationPurchase = async (index) => {
-        // check if they have enough coins and if they do, do this:
-        var i = index;
+         var i = index;
         if (cat_status === 'SAD') {
             i += 1;
         }
-        setCatPicIndex(i);
+        if (index == 4 || index == 6) {
+            const user = auth.currentUser;
+            const userDoc = await db.collection('users').doc(user.uid)
+            let userPoints = 0;
+            userDoc.get().then(async (doc) => {
+                userPoints = doc.data().points || 0;
+            }).then(() => {
+    
+                    if ((userPoints < 10 && index == 4) || (userPoints < 25 && index == 6)) {
+                        Alert.alert(
+                            'Insufficient Funds',
+                            'You do not have enough coins to purchase this accessory.',
+                            [
+                                {
+                                    text: 'OK',
+                                },
+                            ]
+                        );
+                    } else {
+                        setCatPicIndex(i);
+                        if (index == 4) {
+                            userDoc.update({
+                                points: userPoints - 10
+                            })
+                        } else if (index == 6) {
+                            userDoc.update({
+                                points: userPoints - 25
+                            })
+                        }
+                        Alert.alert(
+                            'Item Purchased!',
+                            'New customization unlocked',
+                            [
+                                {
+                                    text: 'OK',
+                                },
+                            ]
+                        );
+                    }
+            })
+        } else {
+            setCatPicIndex(i);
+        }
+        
         try {
             await AsyncStorage.setItem('catPicIndex', i.toString());
         } catch (error) {
             console.error('Error saving catPicIndex value to AsyncStorage:', error);
         }
-
-        // if they don't have enough coins, do this: 
-        // Alert.alert(
-        //     'Insufficient Funds',
-        //     'You do not have enough coins to purchase this accessory.',
-        //     [
-        //         {
-        //             text: 'OK',
-        //         },
-        //     ]
-        // );
     }
 
     const customizeModal = () => {
@@ -124,7 +155,6 @@ const WeeklyReportScreen = () => {
                         <View style={{borderWidth: 1, borderColor: '#000', height: 80, borderRadius: 4, alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
                             <Pressable
                                 onPress={() => {
-                                    console.log('took default')
                                     handleCustomizationPurchase(0)
                                 }}>
                                 <View style={styles.valign_items}>
@@ -134,7 +164,6 @@ const WeeklyReportScreen = () => {
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    console.log('took pink and blue bow!')
                                     handleCustomizationPurchase(2)
                                 }}>
                                 <View style={styles.valign_items}>
@@ -144,7 +173,6 @@ const WeeklyReportScreen = () => {
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    console.log('took blue hat!')
                                     handleCustomizationPurchase(4)
                                 }}>
                                 <View style={styles.valign_items}>
@@ -154,7 +182,6 @@ const WeeklyReportScreen = () => {
                             </Pressable>
                             <Pressable
                                 onPress={() => {
-                                    console.log('took circle glasses!')
                                     handleCustomizationPurchase(6)
                                 }}>
                                 <View style={styles.valign_items}>
@@ -191,7 +218,7 @@ const WeeklyReportScreen = () => {
             }
             loadCatPic();
         }
-    }, [isFocused, ])
+    }, [isFocused])
 
     
     return (

@@ -18,13 +18,13 @@ const InventoryScreen = ({ route }) => {
     const { setItem, itemList, setItemList, handleAddItem } = useContext(ItemContext);
     const [ itemName, setItemName ] = useState('');
     const [ itemQty, setItemQty ] = useState('');
-    const [ itemDaysLeft, setItemDaysLeft ] = useState('');
-    const { uid } = route.params;
+     const { uid } = route.params;
     const [manualAddModalVisible, setManualAddModalVisible] = useState(false);
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [sortModalVisible, setSortModalVisible] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const [sortBy, setSortBy] = useState('asc-daysLeft-0');
+    const [points, setPoints] = useState(0);
     const isFocused = useIsFocused();
 
     const changeQuantity = () => {
@@ -46,7 +46,6 @@ const InventoryScreen = ({ route }) => {
             .catch((error) => {
                 console.error("Error adding or updating document: ", error);
             });
-    
             setItemName(null);
             setItemQty(null);
         } else {
@@ -258,20 +257,6 @@ const InventoryScreen = ({ route }) => {
                                 </Pressable>
                             </View>
                         </View>
-                                        
-                        {/* <View style={{flexDirection: 'row', alignItems: 'center',}}>
-                            <Text style={{justifyContent: 'center', verticalAlign: 'middle'}}>Days Left: </Text>
-                            <TextInput
-                                style={[{width: 30, height: 30}, styles.input]}
-                                onChangeText={ qty => setItemDaysLeft(qty)}
-                                keyboardType='numeric'
-                            />
-                            <View style={inv_styles.manual_buttons}>
-                                <Pressable onPress={()=>{changeDaysLeft()}}>
-                                    <Text style={[inv_styles, {fontSize: 18, fontWeight: '500', color: 'white'}]}>Add</Text>
-                                </Pressable>
-                            </View>
-                        </View> */}
     
                         <View style={inv_styles.manual_buttons_container}>
                             <View style={inv_styles.manual_buttons}> 
@@ -412,29 +397,28 @@ const InventoryScreen = ({ route }) => {
         });
     };
     
-    
 
     useEffect(() => {
-        if (isFocused || sortBy) {
-            const loadSelectedValue = async () => {
-                try {
-                  const value = await AsyncStorage.getItem('sortBy');
-                  if (value !== null) {
-                    setSortBy(value);
-                  }
-                } catch (error) {
-                  console.error('Error loading sortBy value from AsyncStorage:', error);
-                }
+        const loadSelectedValue = async () => {
+            try {
+              const value = await AsyncStorage.getItem('sortBy');
+              if (value !== null) {
+                setSortBy(value);
+              }
+            } catch (error) {
+              console.error('Error loading sortBy value from AsyncStorage:', error);
             }
-            loadSelectedValue();
-            fetchInventoryItems();
-        }   
+        }
+        loadSelectedValue();
+        fetchInventoryItems();
         const fetchUserData = async () => {
             if (auth.currentUser) {
               const userDocRef = db.collection('users').doc(uid);
               userDocRef.get().then(async (doc) => {
                 if (doc.exists) {
                     setUserName(doc.data().firstName + ' ' + doc.data().lastName);
+                    const userPoints = doc.data().points || 0;
+                    setPoints(userPoints);
                 } else {
                     console.log('No such document!');
                   }
@@ -443,7 +427,7 @@ const InventoryScreen = ({ route }) => {
           };
       
         fetchUserData();
-    }, [isFocused, sortBy]);
+    }, [isFocused, sortBy, manualAddModalVisible, editModalVisible, sortModalVisible]);
   
 
     return (
@@ -455,6 +439,7 @@ const InventoryScreen = ({ route }) => {
                         <Text style={inv_styles.hello_text}>Hello!</Text>
                         <Text style={inv_styles.display_name}>{userName}</Text>
                     </View>
+                    <Text style={inv_styles.points}>Coins: {points}</Text>
                 </View>
                 <View style={styles.hz_align_items}>
                     <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
@@ -462,8 +447,6 @@ const InventoryScreen = ({ route }) => {
                         style={[{marginRight: 10, backgroundColor: '#D9D9D9'}, inv_styles.manual_btn_background]}
                         onPress={() => {
                             setSortModalVisible(true);
-                            // setSortBy((sortBy === 'asc') ? 'desc' : 'asc');
-                            // fetchInventoryItems();
                             }}>
                         <Text style={inv_styles.sort_by_btn}>Sort By</Text>
                     </Pressable>
@@ -616,35 +599,13 @@ const inv_styles = StyleSheet.create({
         margin: 11,
         paddingBottom: 2, 
         paddingHorizontal: 5,
+    },
+
+    points: {
+        paddingLeft: 120,
+        fontSize: 22,
+        fontWeight: "bold",
     }
 });
 
 export default InventoryScreen;
-
-
-const changeDaysLeft = () => {
-    if (itemName && itemDaysLeft) {
-        const itemRef = db.collection('users').doc(uid).collection('items').doc(productDictionary[itemName].UPC);
-
-        itemRef.get().then(async (doc) => {
-            if (doc.exists) {
-                return itemRef.update({
-                    daysLeft: parseInt(itemDaysLeft)
-                });
-            } else {
-                console.log("not here")
-            }
-        })
-        .then(() => {
-            Alert.alert('Success', 'Quantity updated');
-        })
-        .catch((error) => {
-            console.error("Error adding or updating document: ", error);
-        });
-
-        setItemName(null);
-        setItemQty(null);
-    } else {
-        Alert.alert('Error', 'Could not edit');
-    }
-}
