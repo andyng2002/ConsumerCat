@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { db } from '../firebaseConfig';
 import { auth } from '../firebaseConfig';
 import { format, addDays } from 'date-fns';
+import { productDictionary } from '../ProductInfo/productDictionary.js';
 
 /*
 resources: https://www.youtube.com/watch?v=LtbuOgoQJAg
@@ -147,7 +148,8 @@ const ScannerScreen = ({ route }) => {
                         quantity: quantity,  // Also adding quantity
                         bought: boughtDateFormatted,
                         expirationDate: expirationDateFormatted,
-                        daysLeft: 12,
+                        daysLeft: 12,                        
+                        imageURL: productDictionary[scannedItem.brand + " " + scannedItem.productName].image,
                     });
                 }
             })
