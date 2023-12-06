@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
-import { auth } from '../firebaseConfig';
+import { auth, db } from '../firebaseConfig';
+import firebase from 'firebase/app';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -8,14 +9,38 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     auth.signInWithEmailAndPassword(email, password)
-      .then((user) => {
-        const uid = user.user.uid;
+      .then((userCredential) => {
+        const uid = userCredential.user.uid;
+        const currentDate = new Date().toISOString().split('T')[0]; // 'YYYY-MM-DD' format
+  
+        // Prepare the document reference for login logs under the specific date
+        const eventLogsRef = db.collection('eventLogs').doc('login').collection('date').doc(currentDate);
+  
+        // Prepare the data to log
+        const eventData = {
+          userId: uid,
+          userEmail: email, // Be mindful of user privacy
+        };
+  
+        // Log the login event to Firestore under the specific date
+        eventLogsRef.set({
+          [uid]: eventData // Creating a field with userId as the key and eventData as the value
+        }, { merge: true }) // Using merge to ensure that existing data under the same date is not overwritten
+          .then(() => {
+            console.log('Login event logged to Firestore');
+          })
+          .catch((error) => {
+            console.error('Error logging event to Firestore:', error);
+          });
+  
         navigation.navigate('TabContainer', { uid: uid });
       })
       .catch((error) => {
         Alert.alert('Login Failed', error.message);
       });
   };
+  
+  
   
   return (
     <View style={styles.container}>
