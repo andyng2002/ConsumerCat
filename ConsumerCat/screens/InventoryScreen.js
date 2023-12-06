@@ -429,7 +429,7 @@ const InventoryScreen = ({ route }) => {
                         <Text style={inv_styles.hello_text}>Hello!</Text>
                         <Text style={inv_styles.display_name}>{userName}</Text>
                     </View>
-                    <Text style={inv_styles.points}>Points: {points}</Text>
+                    <Text style={inv_styles.points}>Coins: {points}</Text>
                 </View>
                 <View style={styles.hz_align_items}>
                     <Text style={[{flex: 1}, styles.header]}>Your Inventory</Text>
