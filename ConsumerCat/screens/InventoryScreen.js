@@ -83,9 +83,14 @@ const InventoryScreen = ({ route }) => {
                          }
                     });
     
-                    const expirationDate = addDays(new Date(), itemExpiration);
-                    const expirationDateFormatted = format(expirationDate, 'MM/dd/yyyy');
+                    const expirationDate = format(addDays(new Date(), itemExpiration), 'MM/dd/yyyy').split('/');
+                    const expirationDate1 = new Date(parseInt(expirationDate[2], 10), 
+                        parseInt(expirationDate[0], 10) - 1, parseInt(expirationDate[1], 10));
+                    const expirationDateFormatted = format(expirationDate1, 'MM/dd/yyyy');
                     const boughtDateFormatted = format(new Date(), 'MM/dd/yyyy');
+
+                    const daysLeft = parseInt(differenceInCalendarDays(expirationDate1, new Date()));
+                    const daysLeftFormatted = daysLeft <= 0 ? 0 : daysLeft;
     
                     action = itemRef.set({
                         itemName: itemName,
@@ -93,7 +98,7 @@ const InventoryScreen = ({ route }) => {
                         imageURL: productDictionary[itemName].image,
                         bought: boughtDateFormatted,
                         expirationDate: expirationDateFormatted,
-                        daysLeft: 12,
+                        daysLeft: daysLeftFormatted,
                     });
                 }
                 return action;

@@ -4,7 +4,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner'
 import { Ionicons } from '@expo/vector-icons';
 import { db } from '../firebaseConfig';
 import { auth } from '../firebaseConfig';
-import { format, addDays } from 'date-fns';
+import { format, addDays, differenceInCalendarDays, parseISO} from 'date-fns';
 import { productDictionary } from '../ProductInfo/productDictionary.js';
 
 /*
@@ -144,16 +144,12 @@ const ScannerScreen = ({ route }) => {
     
 
     const addToInventory = () => {
-        var itemExpiration = 7;
-        const expirationDate = addDays(new Date(), itemExpiration);
-        const expirationDateFormatted = format(expirationDate, 'MM/dd/yyyy');
-        const boughtDateFormatted = format(new Date(), 'MM/dd/yyyy');
-    
+
         if (scannedItem && uid && scannedUPC) {  // Make sure all the required data is available
             // Use UPC as the document ID
             const itemRef = db.collection('users').doc(uid).collection('items').doc(scannedUPC);
     
-            itemRef.get().then((doc) => {
+            itemRef.get().then(async (doc) => {
                 if (doc.exists) {
                     // If item already exists, update the quantity
                     const currentQuantity = doc.data().quantity || 0;  // Use 0 as a fallback
@@ -162,15 +158,45 @@ const ScannerScreen = ({ route }) => {
                     });
                 } else {
                     // If item doesn't exist, create a new entry
-                    return itemRef.set({
+                    var itemExpiration = 7;
+
+                    const itemQuerySnapshot = await db.collection('productDatabase')
+                        .where('fullName', '>=', scannedItem.brand + " " + scannedItem.productName)
+                        .where('fullName', '<=', scannedItem.brand + " " + scannedItem.productName + '\uf8ff')
+                        .get();
+
+                    itemQuerySnapshot.docs.map(doc => {
+                        const data = doc.data();
+                        if (data) {
+                            // if item is in productDatabase, get its expiresInDays
+                            itemExpiration = parseInt(data.expiresInDays);
+                         }
+                    });
+
+                    const expirationDate = format(addDays(new Date(), itemExpiration), 'MM/dd/yyyy').split('/');
+                    // const expirationDate1 = expirationDate.split('/');
+                    const expirationDate1 = new Date(parseInt(expirationDate[2], 10), 
+                        parseInt(expirationDate[0], 10) - 1, parseInt(expirationDate[1], 10));
+                    const expirationDateFormatted = format(expirationDate1, 'MM/dd/yyyy');
+                    const boughtDateFormatted = format(new Date(), 'MM/dd/yyyy');
+
+                    const daysLeft = parseInt(differenceInCalendarDays(expirationDate1, new Date()));
+                    const daysLeftFormatted = daysLeft <= 0 ? 0 : daysLeft;
+
+
+                    itemRef.set({
                         ...scannedItem,
                         itemName: scannedItem.brand + " " + scannedItem.productName,  // Adding itemName field
                         quantity: quantity,  // Also adding quantity
                         bought: boughtDateFormatted,
                         expirationDate: expirationDateFormatted,
-                        daysLeft: 12,                        
+                        daysLeft: itemExpiration,                        
                         imageURL: productDictionary[scannedItem.brand + " " + scannedItem.productName].image,
                     });
+
+                    itemRef.update({
+                        daysLeft: daysLeftFormatted
+                    })
                 }
             })
             .then(() => {
