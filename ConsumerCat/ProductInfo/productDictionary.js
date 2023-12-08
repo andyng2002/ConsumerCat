@@ -18,6 +18,14 @@ let productDictionary = {
     "Dunkin Donuts Original Iced Coffee": {
       UPC: "0049000072372",
       image: "https://images.publixcdn.com/pct/images/products/825000/826095-600x600-A.jpg"
+    }, 
+    "Eggland's Best Organic Large Brown Eggs": {
+      UPC: "492840300196",
+      image: "https://images.publixcdn.com/pct/images/products/905000/909997-600x600-A.jpg"
+    },
+    "Boar's Head Vermont Cheddar Cheese": {
+      UPC: "254543000007",
+      image: "https://images.publixcdn.com/pct/images/products/90000/090547-600x600-A.jpg"
     }
   };
   
