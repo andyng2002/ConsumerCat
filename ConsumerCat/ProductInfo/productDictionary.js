@@ -14,6 +14,10 @@ let productDictionary = {
     "Chobani Non-Fat Greek Yogurt": {
       UPC: "0894700010120",
       image: "https://images.publixcdn.com/pct/images/products/820000/822124-600x600-A.jpg"
+    }, 
+    "Dunkin Donuts Original Iced Coffee": {
+      UPC: "0049000072372",
+      image: "https://images.publixcdn.com/pct/images/products/825000/826095-600x600-A.jpg"
     }
   };
   
