@@ -27,6 +27,7 @@ const AccountCreationScreen = ({ navigation }) => {
       auth.createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
         const user = userCredential.user;
+        const userType = "user";
 
         // Add a new document in Firestore
         db.collection('users').doc(user.uid).set({
@@ -34,6 +35,7 @@ const AccountCreationScreen = ({ navigation }) => {
           lastName,
           email,
           points,
+          userType,
         })
         navigation.navigate('Login')
     })
